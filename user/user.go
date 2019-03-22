@@ -5,8 +5,10 @@ import (
 )
 
 type User struct {
-	UserId         int64  //用户Id
+	UserId         int64 //用户Id
+	Alisid         int64
 	UserName       string //用户名
+	Nickname       string
 	RoomId         string //房间Id
 	GameId         int64  //游戏Id
 	DeskId         int64  //桌子Id
