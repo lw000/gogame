@@ -58,6 +58,7 @@ func (s *Srv) handleConnect(conn net.Conn) {
 	u := user.NewUser()
 	u.AttachClient(NewClientWith(conn))
 	u.SetIp(conn.RemoteAddr().String())
+
 	user.UserMgr().AddWith(u)
 
 	buf := make([]byte, 4096)

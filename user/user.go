@@ -1,7 +1,6 @@
 package user
 
 import (
-	"demo/gogame/network"
 	"sync"
 )
 
@@ -16,8 +15,7 @@ type User struct {
 
 	ip string
 
-	client *network.Client
-	m      sync.RWMutex
+	m sync.RWMutex
 }
 
 func NewUser() *User {
@@ -30,25 +28,4 @@ func (u *User) Ip() string {
 
 func (u *User) SetIp(ip string) {
 	u.ip = ip
-}
-
-func (u *User) GetClient() *network.Client {
-	u.m.RLock()
-	defer u.m.RUnlock()
-
-	return u.client
-}
-
-func (u *User) AttachClient(client *network.Client) {
-	u.m.RLock()
-	defer u.m.RUnlock()
-
-	u.client = client
-}
-
-func (u *User) DetachClient() {
-	u.m.RLock()
-	defer u.m.RUnlock()
-
-	u.client = nil
 }
