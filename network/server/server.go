@@ -1,4 +1,4 @@
-package network
+package server
 
 import (
 	"demo/gogame/packet"

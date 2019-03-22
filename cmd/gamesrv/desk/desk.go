@@ -1,4 +1,4 @@
-package room
+package desk
 
 import (
 	"demo/gogame/user"

@@ -2,28 +2,27 @@ package user
 
 import "sync"
 
-type UserManager struct {
+type Manager struct {
 	store sync.Map
 }
 
 var (
-	once sync.Once
-	umgr *UserManager
+	once   sync.Once
+	umserv *Manager
 )
 
-func UserMgr() *UserManager {
+func init() {
+	Service()
+}
+
+func Service() *Manager {
 	once.Do(func() {
-		umgr = newUserManager()
+		umserv = &Manager{}
 	})
-
-	return umgr
+	return umserv
 }
 
-func newUserManager() *UserManager {
-	return &UserManager{}
-}
-
-func (um *UserManager) AddWith(u *User) bool {
+func (um *Manager) Add(u *User) bool {
 	_, ok := um.store.Load(u.UserId)
 	if !ok {
 		um.store.Store(u.UserId, u)
@@ -31,15 +30,15 @@ func (um *UserManager) AddWith(u *User) bool {
 	return true
 }
 
-func (um *UserManager) Remove(userId int64) {
+func (um *Manager) Remove(userId int64) {
 	um.store.Delete(userId)
 }
 
-func (um *UserManager) RemoveWith(u *User) {
+func (um *Manager) RemoveWith(u *User) {
 	um.Remove(u.UserId)
 }
 
-func (um *UserManager) Get(userId int64) *User {
+func (um *Manager) Get(userId int64) *User {
 	v, ok := um.store.Load(userId)
 	if ok {
 		return v.(*User)
