@@ -1,4 +1,4 @@
-package tyhub
+package gghub
 
 import (
 	"errors"

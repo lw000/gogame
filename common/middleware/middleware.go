@@ -1,4 +1,4 @@
-package tymiddleware
+package ggmiddleware
 
 import (
 	log "github.com/alecthomas/log4go"

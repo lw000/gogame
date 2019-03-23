@@ -1,4 +1,4 @@
-package tyIdWorker
+package ggIdWorker
 
 import (
 	"log"

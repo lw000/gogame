@@ -1,4 +1,4 @@
-package tyutilty
+package ggutilty
 
 import (
 	"archive/zip"

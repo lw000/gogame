@@ -1,4 +1,4 @@
-package tyclic
+package ggclic
 
 import (
 	"errors"

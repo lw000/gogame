@@ -1,4 +1,4 @@
-package tyauth
+package ggauth
 
 import (
 	"crypto/aes"

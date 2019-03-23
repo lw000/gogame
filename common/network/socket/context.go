@@ -1,4 +1,4 @@
-package tysockt
+package ggsockt
 
 import (
 	"github.com/labstack/gommon/log"

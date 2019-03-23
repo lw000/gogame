@@ -1,4 +1,4 @@
-package tycache
+package ggcache
 
 import (
 	"sync"

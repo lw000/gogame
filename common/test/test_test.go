@@ -1,4 +1,4 @@
-package tytest
+package ggtest
 
 import (
 	"log"

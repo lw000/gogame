@@ -1,1 +1,1 @@
-package tyws
+package ggwscfg

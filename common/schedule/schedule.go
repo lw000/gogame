@@ -1,4 +1,4 @@
-package tyschedule
+package ggschedule
 
 import (
 	"errors"

@@ -1,4 +1,4 @@
-package tymail
+package ggmail
 
 import "testing"
 

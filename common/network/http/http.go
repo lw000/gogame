@@ -1,4 +1,4 @@
-package tyhttp
+package gghttp
 
 import (
 	"errors"

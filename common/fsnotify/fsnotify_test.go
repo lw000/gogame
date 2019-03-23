@@ -1,4 +1,4 @@
-package tyfsnotify
+package ggfsnotify
 
 import "testing"
 

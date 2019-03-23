@@ -1,4 +1,4 @@
-package tyws
+package ggwscfg
 
 import (
 	"encoding/json"

@@ -1,4 +1,4 @@
-package tywhitelist
+package ggwhitelist
 
 import (
 	"errors"

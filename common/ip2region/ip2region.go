@@ -1,4 +1,4 @@
-package tyip2region
+package ggip2region
 
 import (
 	"github.com/lionsoul2014/ip2region/binding/golang/ip2region"

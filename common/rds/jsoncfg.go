@@ -1,4 +1,4 @@
-package tyrds
+package ggrds
 
 type Config struct {
 	RedisHost     string

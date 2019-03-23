@@ -1,4 +1,4 @@
-package tyclis
+package ggclis
 
 import (
 	"errors"

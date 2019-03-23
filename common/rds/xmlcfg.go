@@ -1,4 +1,4 @@
-package tyrds
+package ggrds
 
 import "encoding/xml"
 

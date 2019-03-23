@@ -1,4 +1,4 @@
-package tysys
+package ggsys
 
 import (
 	"os"

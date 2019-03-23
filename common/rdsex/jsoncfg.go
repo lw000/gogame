@@ -1,4 +1,4 @@
-package tyrdsex
+package ggrdsex
 
 import (
 	"encoding/json"
