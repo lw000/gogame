@@ -2,7 +2,7 @@ package ggmiddleware
 
 import (
 	log "github.com/alecthomas/log4go"
-	"tuyue/tuyue_common/whitelist"
+	"tuyue/tuyue_common/web/whitelist"
 
 	"github.com/gin-gonic/gin"
 	"net/http"

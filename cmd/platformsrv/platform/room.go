@@ -1,4 +1,4 @@
-package room
+package platform
 
 type Room struct {
 	Rid  int

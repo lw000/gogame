@@ -1,7 +1,7 @@
 package service
 
 import (
-	"demo/gogame/proto/platform"
+	"demo/gogame/proto/logger"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -11,7 +11,6 @@ import (
 
 func StartRpcService(port int64) {
 	address := fmt.Sprintf(":%d", port)
-
 	listen, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Panic(err)
@@ -19,7 +18,7 @@ func StartRpcService(port int64) {
 
 	serv := grpc.NewServer()
 
-	platform.RegisterPlatformServer(serv, &RpcPlatformServer{})
+	Loggersvr.RegisterLoggerServer(serv, &LogServer{})
 
 	reflection.Register(serv)
 

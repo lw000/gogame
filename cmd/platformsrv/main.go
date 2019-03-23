@@ -1,62 +1,47 @@
 package main
 
 import (
+	"demo/gogame/cmd/platformsrv/global"
 	"demo/gogame/cmd/platformsrv/htp"
-	"demo/gogame/cmd/platformsrv/room"
+	"demo/gogame/cmd/platformsrv/platform"
 	"demo/gogame/cmd/platformsrv/rpc"
-	"demo/gogame/user"
+	"demo/gogame/common/sys"
 	"fmt"
 	"log"
-	"sync"
 )
 
-type Platform struct {
-	Id    int64
-	Name  string
-	Rooms []*room.Room
-	m     sync.Mutex
-	usrv  *user.Manager
-}
-
-func NewPlatform(Id int64, name string) *Platform {
-	return &Platform{
-		Id:   Id,
-		Name: name,
-		usrv: user.Service(),
-	}
-}
-
-func (p *Platform) Start() error {
-	p.CreateRoom()
-
-	return nil
-}
-
-func (p *Platform) Stop() error {
-
-	return nil
-}
-
-func (p *Platform) CreateRoom() {
-	for i := 0; i < 100; i++ {
-		p.Rooms = append(p.Rooms, room.NewRoom(i+1, fmt.Sprintf("room_%d", i+1)))
-	}
-}
-
-func (p *Platform) DestroyRoom() {
-
-}
+var (
+	plat *platform.Platform
+)
 
 func main() {
-	platform := NewPlatform(1, "魔游无线游戏")
-	if er := platform.Start(); er != nil {
-		log.Println(er)
-		return
+	ggsys.RegisterOnInterrupt(func() {
+		if er := plat.Stop(); er != nil {
+
+		}
+	})
+
+	plat = platform.NewPlatform(1, "棋牌游戏")
+	if er := plat.Start(); er != nil {
+		log.Panic(er)
 	}
 
-	go htp.StartHtpService(37320)
-	go rpc.StartRpcService(37321)
-	go rpc.StartRpcClient("localhost:37321")
+	if er := global.LoadGlobalConfig(); er != nil {
+		log.Panic(er)
+	}
+
+	pfh := htp.PlatformHtp{}
+	if er := pfh.Start(global.Cfg.HTTPPort); er != nil {
+		log.Panic(er)
+	}
+
+	pfc := rpc.PlatformRpc{}
+	if er := pfc.Start(); er != nil {
+		log.Panic(er)
+	}
+	pfc.StartRpcService(global.Cfg.RPCPort)
+	pfc.StartRpcPlatformClient(fmt.Sprintf("%s:%d", global.Cfg.GateWay.Host, global.Cfg.GateWay.Port))
+	pfc.StartRpcLoggerClient(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port))
 
 	select {}
 }
