@@ -6,6 +6,7 @@ import (
 	"demo/gogame/common/sys"
 	"fmt"
 	"github.com/labstack/gommon/log"
+	"time"
 )
 
 type Game struct {
@@ -38,6 +39,16 @@ func main() {
 	}
 
 	gr.StartRpcLoggerClient(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port))
+
+	go func() {
+		for {
+			er := gr.RpcLoggerMgr().WriteLogger("dbserv")
+			if er != nil {
+
+			}
+			time.Sleep(time.Second * time.Duration(1))
+		}
+	}()
 
 	select {}
 }

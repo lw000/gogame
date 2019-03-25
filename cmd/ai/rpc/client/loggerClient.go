@@ -5,7 +5,6 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"log"
-	"time"
 )
 
 type RpcLoggerClient struct {
@@ -22,7 +21,7 @@ func (r *RpcLoggerClient) Stop() {
 
 }
 
-func (r *RpcLoggerClient) SendMessage(msg string) error {
+func (r *RpcLoggerClient) WriteLogger(msg string) error {
 	ctx := context.Background()
 	reply, er := r.c.WriteLogger(ctx, &Loggersvr.Request{ServerId: 10003, ServerTag: "aiserv", Msg: msg})
 	if er != nil {
@@ -32,14 +31,4 @@ func (r *RpcLoggerClient) SendMessage(msg string) error {
 	log.Println(reply)
 
 	return nil
-}
-
-func (r *RpcLoggerClient) Test() {
-	for {
-		er := r.SendMessage("aiserv")
-		if er != nil {
-
-		}
-		time.Sleep(time.Second * time.Duration(1))
-	}
 }

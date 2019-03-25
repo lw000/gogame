@@ -5,24 +5,33 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"log"
-	"time"
 )
 
-type RpcLoggerClient struct {
+type RpcLoggerClient interface {
+	Start(conn *grpc.ClientConn) error
+	Stop()
+	WriteLogger(msg string) error
+}
+
+type rpcLoggerClient struct {
 	c Loggersvr.LoggerClient
 }
 
-func (r *RpcLoggerClient) Start(conn *grpc.ClientConn) error {
+func NewRpcLoggerClient() RpcLoggerClient {
+	return &rpcLoggerClient{}
+}
+
+func (r *rpcLoggerClient) Start(conn *grpc.ClientConn) error {
 	r.c = Loggersvr.NewLoggerClient(conn)
 
 	return nil
 }
 
-func (r *RpcLoggerClient) Stop() {
+func (r *rpcLoggerClient) Stop() {
 
 }
 
-func (r *RpcLoggerClient) SendMessage(msg string) error {
+func (r *rpcLoggerClient) WriteLogger(msg string) error {
 	ctx := context.Background()
 	reply, er := r.c.WriteLogger(ctx, &Loggersvr.Request{ServerId: 10002, ServerTag: "dbserv", Msg: msg})
 	if er != nil {
@@ -32,14 +41,4 @@ func (r *RpcLoggerClient) SendMessage(msg string) error {
 	log.Println(reply)
 
 	return nil
-}
-
-func (r *RpcLoggerClient) Test() {
-	for {
-		er := r.SendMessage("dbserv")
-		if er != nil {
-
-		}
-		time.Sleep(time.Second * time.Duration(1))
-	}
 }

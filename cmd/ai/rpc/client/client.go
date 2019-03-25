@@ -24,13 +24,11 @@ func (r *RpcLoggerManager) Start(address string) error {
 		log.Panic(er)
 	}
 
-	go r.cli.Test()
-
 	return nil
 }
 
-func (r *RpcLoggerManager) SendMessage(msg string) error {
-	return r.cli.SendMessage(msg)
+func (r *RpcLoggerManager) WriteLogger(msg string) error {
+	return r.cli.WriteLogger(msg)
 }
 
 func (r *RpcLoggerManager) Stop() error {

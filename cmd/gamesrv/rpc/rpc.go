@@ -9,6 +9,10 @@ type GameRpc struct {
 	rpcLoggerMgr *client.RpcLoggerManager
 }
 
+func (r *GameRpc) RpcLoggerMgr() *client.RpcLoggerManager {
+	return r.rpcLoggerMgr
+}
+
 func (r *GameRpc) Start() error {
 	r.rpcLoggerMgr = &client.RpcLoggerManager{}
 

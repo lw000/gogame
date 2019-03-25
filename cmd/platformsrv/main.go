@@ -8,6 +8,7 @@ import (
 	"demo/gogame/common/sys"
 	"fmt"
 	"log"
+	"time"
 )
 
 var (
@@ -42,6 +43,16 @@ func main() {
 	pfc.StartRpcService(global.Cfg.RPCPort)
 	pfc.StartRpcPlatformClient(fmt.Sprintf("%s:%d", global.Cfg.GateWay.Host, global.Cfg.GateWay.Port))
 	pfc.StartRpcLoggerClient(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port))
+
+	go func() {
+		for {
+			er := pfc.RpcLoggerMgr().WriteLogger("dbserv")
+			if er != nil {
+
+			}
+			time.Sleep(time.Second * time.Duration(1))
+		}
+	}()
 
 	select {}
 }

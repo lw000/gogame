@@ -7,7 +7,7 @@ import (
 
 type RpcLoggerManager struct {
 	conn *grpc.ClientConn
-	cli  *RpcLoggerClient
+	cli  RpcLoggerClient
 }
 
 func (r *RpcLoggerManager) Start(address string) error {
@@ -18,22 +18,19 @@ func (r *RpcLoggerManager) Start(address string) error {
 		return er
 	}
 
-	r.cli = &RpcLoggerClient{}
+	r.cli = NewRpcLoggerClient()
 	er = r.cli.Start(r.conn)
 	if er != nil {
 		log.Panic(er)
 	}
-
-	go r.cli.Test()
-
 	return nil
-}
-
-func (r *RpcLoggerManager) SendMessage(msg string) error {
-	return r.cli.SendMessage(msg)
 }
 
 func (r *RpcLoggerManager) Stop() error {
 	er := r.conn.Close()
 	return er
+}
+
+func (r *RpcLoggerManager) WriteLogger(msg string) error {
+	return r.cli.WriteLogger(msg)
 }

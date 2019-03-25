@@ -9,6 +9,10 @@ type DbRpc struct {
 	rpcLoggerMgr *client.RpcLoggerManager
 }
 
+func (r *DbRpc) RpcLoggerMgr() *client.RpcLoggerManager {
+	return r.rpcLoggerMgr
+}
+
 func (r *DbRpc) Start() error {
 	r.rpcLoggerMgr = &client.RpcLoggerManager{}
 

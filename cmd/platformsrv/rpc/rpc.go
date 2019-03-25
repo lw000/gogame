@@ -11,6 +11,14 @@ type PlatformRpc struct {
 	rpcLoggerMgr   *client.RpcLoggerManager
 }
 
+func (r *PlatformRpc) RpcPlatformMgr() *client.RpcPlatformManager {
+	return r.rpcPlatformMgr
+}
+
+func (r *PlatformRpc) RpcLoggerMgr() *client.RpcLoggerManager {
+	return r.rpcLoggerMgr
+}
+
 func (r *PlatformRpc) Start() error {
 	r.rpcPlatformMgr = &client.RpcPlatformManager{}
 	r.rpcLoggerMgr = &client.RpcLoggerManager{}

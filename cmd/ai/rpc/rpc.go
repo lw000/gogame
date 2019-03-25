@@ -9,6 +9,10 @@ type AiRpc struct {
 	rpcLoggerMgr *client.RpcLoggerManager
 }
 
+func (r *AiRpc) RpcLoggerMgr() *client.RpcLoggerManager {
+	return r.rpcLoggerMgr
+}
+
 func (r *AiRpc) Start() error {
 	r.rpcLoggerMgr = &client.RpcLoggerManager{}
 
