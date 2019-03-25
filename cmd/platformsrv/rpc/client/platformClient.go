@@ -25,7 +25,6 @@ func (r *RpcPlatformClient) Stop() {
 
 func (r *RpcPlatformClient) Test() {
 	ctx := context.Background()
-
 	for {
 		reply, er := r.c.RegisterService(ctx, &platform.RequestRegisterService{ServiceId: 1000, ServiceName: "platform", ServiceVersion: "1.0.1"})
 		if er != nil {
@@ -61,7 +60,7 @@ func (r *RpcPlatformClient) TestStream() {
 		var resp *platform.Response
 		resp, er = stream.Recv()
 		if er == io.EOF {
-			log.Println("接收到服务端的结算信号", er)
+			log.Println("接收到服务端的结束信号", er)
 			break
 		}
 

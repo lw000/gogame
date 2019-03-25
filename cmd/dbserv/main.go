@@ -1,27 +1,12 @@
 package main
 
 import (
-	"demo/gogame/cmd/gamesrv/global"
-	"demo/gogame/cmd/gamesrv/rpc"
+	"demo/gogame/cmd/dbserv/global"
+	"demo/gogame/cmd/dbserv/rpc"
 	"demo/gogame/common/sys"
 	"fmt"
-	"github.com/labstack/gommon/log"
+	"log"
 )
-
-type Game struct {
-	Name string
-	Id   int64
-}
-
-func (g *Game) Start() error {
-
-	return nil
-}
-
-func (g *Game) Stop() error {
-
-	return nil
-}
 
 func main() {
 	ggsys.RegisterOnInterrupt(func() {
@@ -32,7 +17,7 @@ func main() {
 		log.Panic(er)
 	}
 
-	gr := rpc.GameRpc{}
+	gr := rpc.DbRpc{}
 	if er := gr.Start(); er != nil {
 		log.Panic(er)
 	}

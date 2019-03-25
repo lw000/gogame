@@ -1,26 +1,26 @@
 package rpc
 
 import (
-	"demo/gogame/cmd/gamesrv/rpc/client"
+	"demo/gogame/cmd/dbserv/rpc/client"
 	"log"
 )
 
-type GameRpc struct {
+type DbRpc struct {
 	rpcLoggerMgr *client.RpcLoggerManager
 }
 
-func (r *GameRpc) Start() error {
+func (r *DbRpc) Start() error {
 	r.rpcLoggerMgr = &client.RpcLoggerManager{}
 
 	return nil
 }
 
-func (r *GameRpc) Stop() error {
+func (r *DbRpc) Stop() error {
 
 	return nil
 }
 
-func (r *GameRpc) StartRpcLoggerClient(address string) {
+func (r *DbRpc) StartRpcLoggerClient(address string) {
 	er := r.rpcLoggerMgr.Start(address)
 	if er != nil {
 		log.Panic(er)

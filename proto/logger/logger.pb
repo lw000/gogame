@@ -10,7 +10,8 @@ service Logger {
 // Request 请求数据格式
 message Request {
     int32 serverId = 1;
-    string msg = 4;
+    string serverTag = 2;
+    string msg = 3;
 }
 
 // Response 响应数据格式

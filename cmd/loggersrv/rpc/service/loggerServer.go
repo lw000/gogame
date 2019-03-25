@@ -25,6 +25,5 @@ func (l *LogServer) WriteLogger(context context.Context, req *Loggersvr.Request)
 		log.Println(req)
 		status = 1
 	}
-	log.Println(req)
 	return &Loggersvr.Response{Status: status}, nil
 }

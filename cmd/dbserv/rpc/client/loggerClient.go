@@ -22,19 +22,24 @@ func (r *RpcLoggerClient) Stop() {
 
 }
 
-func (r *RpcLoggerClient) SendMessage(msg string) {
+func (r *RpcLoggerClient) SendMessage(msg string) error {
 	ctx := context.Background()
-	reply, er := r.c.WriteLogger(ctx, &Loggersvr.Request{ServerId: 10000, ServerTag: "platformsrv", Msg: msg})
+	reply, er := r.c.WriteLogger(ctx, &Loggersvr.Request{ServerId: 10002, ServerTag: "dbserv", Msg: msg})
 	if er != nil {
 		log.Printf("did not connect:%v", er)
-		return
+		return er
 	}
 	log.Println(reply)
+
+	return nil
 }
 
 func (r *RpcLoggerClient) Test() {
 	for {
-		r.SendMessage("platform")
+		er := r.SendMessage("dbserv")
+		if er != nil {
+
+		}
 		time.Sleep(time.Second * time.Duration(1))
 	}
 }

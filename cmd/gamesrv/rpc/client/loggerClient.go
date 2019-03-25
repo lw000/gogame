@@ -24,7 +24,7 @@ func (r *RpcLoggerClient) Stop() {
 
 func (r *RpcLoggerClient) SendMessage(msg string) {
 	ctx := context.Background()
-	reply, er := r.c.WriteLogger(ctx, &Loggersvr.Request{ServerId: 10000, ServerTag: "platformsrv", Msg: msg})
+	reply, er := r.c.WriteLogger(ctx, &Loggersvr.Request{ServerId: 10001, ServerTag: "gamesrv", Msg: msg})
 	if er != nil {
 		log.Printf("did not connect:%v", er)
 		return
@@ -34,7 +34,7 @@ func (r *RpcLoggerClient) SendMessage(msg string) {
 
 func (r *RpcLoggerClient) Test() {
 	for {
-		r.SendMessage("platform")
+		r.SendMessage("gamesrv")
 		time.Sleep(time.Second * time.Duration(1))
 	}
 }

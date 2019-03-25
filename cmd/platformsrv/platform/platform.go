@@ -1,7 +1,6 @@
 package platform
 
 import (
-	"demo/gogame/cmd/platformsrv/room"
 	"demo/gogame/user"
 	"fmt"
 	"sync"
@@ -10,7 +9,7 @@ import (
 type Platform struct {
 	Id    int64
 	Name  string
-	Rooms []*room.Room
+	Rooms []*Room
 	m     sync.Mutex
 	usrv  *user.Manager
 }
@@ -36,7 +35,7 @@ func (p *Platform) Stop() error {
 
 func (p *Platform) CreateRoom() {
 	for i := 0; i < 100; i++ {
-		p.Rooms = append(p.Rooms, room.NewRoom(i+1, fmt.Sprintf("room_%d", i+1)))
+		p.Rooms = append(p.Rooms, NewRoom(i+1, fmt.Sprintf("room_%d", i+1)))
 	}
 }
 

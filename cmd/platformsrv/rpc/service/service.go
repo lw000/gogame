@@ -28,4 +28,5 @@ func StartRpcService(port int64) {
 	if err = serv.Serve(listen); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+
 }

@@ -1,14 +1,9 @@
 {
     "debug": 1,
-    "rpcPort": 37310,
-    "httpPort": 37311,
+    "port": 37313,
     "loggerServ": {
         "host": "127.0.0.1",
         "port": 37312
-    },
-    "gateWay": {
-    "host": "127.0.0.1",
-    "port": 37310
     },
     "mysql": {
         "status": 0,
