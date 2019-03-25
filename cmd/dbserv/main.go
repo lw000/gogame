@@ -22,7 +22,7 @@ func main() {
 	if er := gr.Start(); er != nil {
 		log.Panic(er)
 	}
-
+	gr.StartRpcDbServer(global.Cfg.Port)
 	gr.StartRpcLoggerClient(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port))
 
 	go func() {

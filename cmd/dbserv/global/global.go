@@ -1,7 +1,7 @@
 package global
 
 import (
-	"demo/gogame/cmd/platformsrv/config"
+	"demo/gogame/cmd/dbserv/config"
 	log "github.com/alecthomas/log4go"
 )
 

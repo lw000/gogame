@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"demo/gogame/cmd/dbserv/rpc/client"
+	"demo/gogame/cmd/dbserv/rpc/service"
 	"log"
 )
 
@@ -22,6 +23,10 @@ func (r *DbRpc) Start() error {
 func (r *DbRpc) Stop() error {
 
 	return nil
+}
+
+func (r *DbRpc) StartRpcDbServer(port int64) {
+	go service.StartRpcService(port)
 }
 
 func (r *DbRpc) StartRpcLoggerClient(address string) {

@@ -18,7 +18,7 @@ func StartRpcService(port int64) {
 
 	serv := grpc.NewServer()
 
-	Loggersvr.RegisterLoggerServer(serv, &LogServer{})
+	Loggersvr.RegisterLoggerServer(serv, &RocLoggerServer{})
 
 	reflection.Register(serv)
 

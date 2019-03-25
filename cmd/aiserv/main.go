@@ -1,12 +1,11 @@
 package main
 
 import (
-	"demo/gogame/cmd/ai/global"
-	"demo/gogame/cmd/ai/rpc"
+	"demo/gogame/cmd/aiserv/global"
+	"demo/gogame/cmd/aiserv/rpc"
 	"demo/gogame/common/sys"
 	"fmt"
 	"log"
-	"time"
 )
 
 func main() {
@@ -31,7 +30,7 @@ func main() {
 			if er != nil {
 
 			}
-			time.Sleep(time.Second * time.Duration(1))
+			//time.Sleep(time.Second * time.Duration(1))
 		}
 	}()
 

@@ -1,7 +1,7 @@
 package rpc
 
 import (
-	"demo/gogame/cmd/ai/rpc/client"
+	"demo/gogame/cmd/aiserv/rpc/client"
 	"log"
 )
 

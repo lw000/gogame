@@ -2,9 +2,9 @@ package client
 
 import (
 	"demo/gogame/proto/logger"
+	log "github.com/alecthomas/log4go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"log"
 )
 
 type RpcLoggerClient struct {
@@ -25,10 +25,11 @@ func (r *RpcLoggerClient) WriteLogger(msg string) error {
 	ctx := context.Background()
 	reply, er := r.c.WriteLogger(ctx, &Loggersvr.Request{ServerId: 10000, ServerTag: "platformsrv", Msg: msg})
 	if er != nil {
-		log.Printf("did not connect:%v", er)
+		log.Error("did not connect:%v", er)
 		return er
 	}
-	log.Println(reply)
-
+	if reply.Status != 1 {
+		log.Error(reply)
+	}
 	return nil
 }

@@ -6,7 +6,6 @@ import (
 	"demo/gogame/common/sys"
 	"fmt"
 	"github.com/labstack/gommon/log"
-	"time"
 )
 
 type Game struct {
@@ -46,7 +45,7 @@ func main() {
 			if er != nil {
 
 			}
-			time.Sleep(time.Second * time.Duration(1))
+			//time.Sleep(time.Second * time.Duration(1))
 		}
 	}()
 

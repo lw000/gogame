@@ -1,16 +1,15 @@
 package service
 
 import (
-	"context"
-	"demo/gogame/proto/platform"
+	"demo/gogame/proto/db"
 	log "github.com/alecthomas/log4go"
 	"io"
 )
 
-type RpcPlatformServer struct {
+type RpcDbServer struct {
 }
 
-func (c *RpcPlatformServer) BidStream(stream platform.Platform_BidStreamServer) error {
+func (c *RpcDbServer) BidStream(stream dbserv.DB_BidStreamServer) error {
 	ctx := stream.Context()
 	for {
 		select {
@@ -33,14 +32,14 @@ func (c *RpcPlatformServer) BidStream(stream platform.Platform_BidStreamServer) 
 
 			switch req.MainId {
 			case 0:
-				er = stream.SendMsg(&platform.Response{MainId: req.MainId, SubId: req.SubId, RequestId: req.RequestId, Output: req.Input})
+				er = stream.SendMsg(&dbserv.Response{MainId: req.MainId, SubId: req.SubId, RequestId: req.RequestId, Output: req.Input})
 				if er != nil {
 					log.Error(er)
 					return er
 				}
 				return nil
 			case 1:
-				er = stream.SendMsg(&platform.Response{MainId: req.MainId, SubId: req.SubId, RequestId: req.RequestId, Output: req.Input})
+				er = stream.SendMsg(&dbserv.Response{MainId: req.MainId, SubId: req.SubId, RequestId: req.RequestId, Output: req.Input})
 				if er != nil {
 					log.Error(er)
 					return er
@@ -50,9 +49,4 @@ func (c *RpcPlatformServer) BidStream(stream platform.Platform_BidStreamServer) 
 	}
 
 	return nil
-}
-
-func (c *RpcPlatformServer) RegisterService(context context.Context, req *platform.RequestRegisterService) (*platform.ResponseRegisterService, error) {
-	log.Info(req)
-	return &platform.ResponseRegisterService{Status: 0, Msg: "success"}, nil
 }

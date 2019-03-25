@@ -2,20 +2,24 @@ package client
 
 import (
 	"demo/gogame/proto/platform"
+	log "github.com/alecthomas/log4go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"io"
-	"log"
-	"sync/atomic"
-	"time"
 )
 
 type RpcPlatformClient struct {
-	c platform.PlatformClient
+	c      platform.PlatformClient
+	stream platform.Platform_BidStreamClient
+}
+
+func (r *RpcPlatformClient) Stream() platform.Platform_BidStreamClient {
+	return r.stream
 }
 
 func (r *RpcPlatformClient) Start(conn *grpc.ClientConn) error {
 	r.c = platform.NewPlatformClient(conn)
+	r.StartStream()
 	return nil
 }
 
@@ -23,56 +27,57 @@ func (r *RpcPlatformClient) Stop() {
 
 }
 
-func (r *RpcPlatformClient) Test() {
+func (r *RpcPlatformClient) RegisterService() {
 	ctx := context.Background()
-	for {
-		reply, er := r.c.RegisterService(ctx, &platform.RequestRegisterService{ServiceId: 1000, ServiceName: "platform", ServiceVersion: "1.0.1"})
-		if er != nil {
-			log.Printf("did not connect:%v", er)
-			return
-		}
-		log.Printf("[%d] [%s]", reply.Status, reply.Msg)
-		time.Sleep(time.Millisecond * time.Duration(100))
-	}
-}
-
-func (r *RpcPlatformClient) TestStream() {
-	stream, er := r.c.BidStream(context.Background())
+	reply, er := r.c.RegisterService(ctx, &platform.RequestRegisterService{ServiceId: 1000, ServiceName: "platform", ServiceVersion: "1.0.1"})
 	if er != nil {
-		log.Println(er)
+		log.Error("did not connect:%v", er)
 		return
 	}
 
-	var requestId int32 = 0
+	if reply.Status != 1 {
+		log.Error(reply)
+	}
+}
 
-	go func() {
-		for {
-			atomic.AddInt32(&requestId, 1)
-			if er = stream.SendMsg(&platform.Request{MainId: 1, SubId: 10000, RequestId: requestId, Input: "message-1"}); er != nil {
-				log.Println(er)
-				return
-			}
-			time.Sleep(time.Millisecond * time.Duration(100))
-		}
-	}()
+func (r *RpcPlatformClient) StartStream() {
+	var er error
+	r.stream, er = r.c.BidStream(context.Background())
+	if er != nil {
+		log.Error(er)
+		return
+	}
 
+	go r.run()
+}
+
+func (r *RpcPlatformClient) SendStreamMessage(mainId int32, subId int32, requestId int32, input string) error {
+	if er := r.stream.SendMsg(&platform.Request{MainId: mainId, SubId: subId, RequestId: requestId, Input: input}); er != nil {
+		log.Error(er)
+		return er
+	}
+	return nil
+}
+
+func (r *RpcPlatformClient) run() {
+	var er error
+	var resp *platform.Response
 	for {
-		var resp *platform.Response
-		resp, er = stream.Recv()
+		resp, er = r.stream.Recv()
 		if er == io.EOF {
-			log.Println("接收到服务端的结束信号", er)
+			log.Error("接收到服务端的结束信号", er)
 			break
 		}
 
 		if er != nil {
-			log.Println("接收数据错误", er)
+			log.Error("接收数据错误", er)
 			break
 		}
 		switch resp.MainId {
 		case 1:
-			log.Println("resp", resp)
+			log.Info(resp)
 		case 2:
-			log.Println("resp", resp)
+			log.Info(resp)
 		}
 	}
 }

@@ -9,6 +9,11 @@ import (
 type PlatformRpc struct {
 	rpcPlatformMgr *client.RpcPlatformManager
 	rpcLoggerMgr   *client.RpcLoggerManager
+	rpcDbMgr       *client.RpcDbManager
+}
+
+func (r *PlatformRpc) RpcDbMgr() *client.RpcDbManager {
+	return r.rpcDbMgr
 }
 
 func (r *PlatformRpc) RpcPlatformMgr() *client.RpcPlatformManager {
@@ -22,6 +27,7 @@ func (r *PlatformRpc) RpcLoggerMgr() *client.RpcLoggerManager {
 func (r *PlatformRpc) Start() error {
 	r.rpcPlatformMgr = &client.RpcPlatformManager{}
 	r.rpcLoggerMgr = &client.RpcLoggerManager{}
+	r.rpcDbMgr = &client.RpcDbManager{}
 
 	return nil
 }
@@ -44,6 +50,13 @@ func (r *PlatformRpc) StartRpcPlatformClient(address string) {
 
 func (r *PlatformRpc) StartRpcLoggerClient(address string) {
 	er := r.rpcLoggerMgr.Start(address)
+	if er != nil {
+		log.Panic(er)
+	}
+}
+
+func (r *PlatformRpc) StartRpcDbClient(address string) {
+	er := r.rpcDbMgr.Start(address)
 	if er != nil {
 		log.Panic(er)
 	}
