@@ -2,6 +2,8 @@ package main
 
 import (
 	"demo/gogame/cmd/gateway/global"
+	"demo/gogame/common/utilty"
+	"demo/gogame/proto/router"
 	"demo/gogame/rpc/client"
 	"encoding/json"
 	"fmt"
@@ -9,6 +11,7 @@ import (
 	"github.com/olahol/melody"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -18,7 +21,11 @@ type RecvData struct {
 }
 
 var (
-	rpcLoggerCli *rpcclient.RpcLoggerClient
+	rpcRouterStream *rpcclient.RpcRouterStream
+	rpcRouterCli    *rpcclient.RpcRouterClient
+	rpcLoggerCli    *rpcclient.RpcLoggerClient
+
+	users sync.Map
 )
 
 func Test() {
@@ -55,44 +62,18 @@ func main() {
 	})
 
 	m.HandleConnect(func(s *melody.Session) {
-		log.Println("新用户连接")
-
-		//centerStream, er := rpcRouterCli.CreateStream(func(resp *routersvr.Response) {
-		//	switch resp.MainId {
-		//	case 1:
-		//		log.Println(resp)
-		//	case 2:
-		//		log.Println(resp)
-		//	}
-		//})
-		//if er != nil {
-		//	log.Println(er)
-		//	return
+		//rpcRouterCli := &rpcclient.RpcRouterClient{}
+		//if er := rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterServ.Host, global.Cfg.RouterServ.Port)); er != nil {
+		//	log.Panic(er)
 		//}
 
-		rpcRouterCli := &rpcclient.RpcRouterClient{}
-		if er := rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterServ.Host, global.Cfg.RouterServ.Port)); er != nil {
-			log.Panic(er)
-		}
-
-		s.Set("client", rpcRouterCli)
+		uuid := ggutilty.UUID()
+		s.Set("uuid", uuid)
+		users.Store(uuid, s)
+		log.Println("websocket的连接成功", uuid)
 	})
 
 	m.HandleMessage(func(s *melody.Session, data []byte) {
-		v, ok := s.Get("client")
-		if !ok {
-			log.Println("error")
-			return
-		}
-		routerCli := v.(*rpcclient.RpcRouterClient)
-		if !ok {
-			er := s.CloseWithMsg([]byte("被保存的数据流不是[*client.RpcCenterStream]"))
-			if er != nil {
-				log.Println(er)
-			}
-			return
-		}
-
 		var rdata RecvData
 		if er := json.Unmarshal(data, &rdata); er != nil {
 			log.Println("解析输入信息失败:", er)
@@ -103,42 +84,102 @@ func main() {
 			return
 		}
 
-		resp, er := routerCli.ForwardingData(1, 1, 1, string(data))
-		if er != nil {
-			log.Println("error")
-		}
-
-		er = s.Write(data)
-		if er != nil {
-			log.Println("error")
-			return
-		}
-
-		log.Println(resp)
-
-		//if err := centerStream.SendMessage(1, 1, 1, string(data)); err != nil {
-		//	er = s.CloseWithMsg([]byte("向gRPC服务端发送消息失败:" + err.Error()))
+		//v, ok := s.Get("client")
+		//if !ok {
+		//	log.Println("error")
 		//	return
 		//}
-	})
+		//
+		//routerCli := v.(*rpcclient.RpcRouterClient)
+		//if !ok {
+		//	er := s.CloseWithMsg([]byte("被保存的数据流不是[*client.RpcCenterStream]"))
+		//	if er != nil {
+		//		log.Println(er)
+		//	}
+		//	return
+		//}
+		//
+		//resp, er := routerCli.ForwardingData(10000, 1, , string(data))
+		//if er != nil {
+		//	log.Println("error")
+		//}
+		//log.Println(resp)
+		//
+		//er := s.Write(data)
+		//if er != nil {
+		//	log.Println("error")
+		//	return
+		//}
 
-	m.HandleDisconnect(func(s *melody.Session) {
-		log.Println("websocket的断开连接")
-
-		v, ok := s.Get("client")
+		v, ok := s.Get("uuid")
 		if !ok {
 			log.Println("error")
 			return
 		}
+		uuid := v.(string)
 
-		routerCli := v.(*rpcclient.RpcRouterClient)
-		if er := routerCli.Stop(); er != nil {
-			log.Println("断开stream错误", er)
+		if er := rpcRouterStream.SendMessage(10000, 1, uuid, string(data)); er != nil {
+			er = s.CloseWithMsg([]byte("向gRPC服务端发送消息失败:" + er.Error()))
+			return
 		}
+	})
+
+	m.HandleDisconnect(func(s *melody.Session) {
+		//v, ok := s.Get("client")
+		//if !ok {
+		//	log.Println("error")
+		//	return
+		//}
+		//
+		//routerCli := v.(*rpcclient.RpcRouterClient)
+		//if er := routerCli.Stop(); er != nil {
+		//	log.Println("断开stream错误", er)
+		//}
+
+		v, ok := s.Get("uuid")
+		if !ok {
+			log.Println("error")
+			return
+		}
+		uuid := v.(string)
+
+		users.Delete(uuid)
+
+		log.Println("websocket的断开连接", uuid)
 	})
 
 	rpcLoggerCli = &rpcclient.RpcLoggerClient{}
 	if er := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port)); er != nil {
+		log.Panic(er)
+	}
+
+	rpcRouterCli = &rpcclient.RpcRouterClient{}
+	if er := rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterServ.Host, global.Cfg.RouterServ.Port)); er != nil {
+		log.Panic(er)
+	}
+
+	var er error
+	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ForwardResponse) {
+		switch response.MainId {
+		case 10000:
+			log.Println(response)
+
+			v, ok := users.Load(response.Uuid)
+			if !ok {
+				log.Println("session error", response.Uuid)
+				return
+			}
+			s := v.(*melody.Session)
+
+			er = s.Write([]byte(response.Output))
+			if er != nil {
+				log.Println("error")
+				return
+			}
+		}
+	})
+
+	if er != nil {
 		log.Panic(er)
 	}
 
