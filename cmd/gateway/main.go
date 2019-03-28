@@ -44,6 +44,40 @@ func Test() {
 	}()
 }
 
+func onRouterMessage(response *routersvr.ForwardMessage) {
+	switch response.ServiceId {
+	case ggconstant.CRouterServiceId:
+
+		pro := protocol.RequestChat{}
+		if er := proto.Unmarshal(response.Msg, &pro); er != nil {
+			log.Println(er)
+			return
+		}
+
+		log.Printf("%+v\n", pro)
+
+		v, ok := users.Load(response.Uuid)
+		if !ok {
+			log.Println("session error", response.Uuid)
+			return
+		}
+		s := v.(*melody.Session)
+		if s.IsClosed() {
+			log.Println("session closed")
+			return
+		}
+
+		er := s.Write([]byte(fmt.Sprintf(`{"uid":%s "input":%s}`, pro.Uid, pro.Msg)))
+		if er != nil {
+			log.Println("error")
+			return
+		}
+
+	default:
+		log.Println("error")
+	}
+}
+
 func main() {
 	if er := global.LoadGlobalConfig(); er != nil {
 		log.Panic(er)
@@ -65,11 +99,6 @@ func main() {
 	})
 
 	m.HandleConnect(func(s *melody.Session) {
-		//rpcRouterCli := &rpcclient.RpcRouterClient{}
-		//if er := rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterServ.Host, global.Cfg.RouterServ.Port)); er != nil {
-		//	log.Panic(er)
-		//}
-
 		uuid := ggutilty.UUID()
 		s.Set("uuid", uuid)
 		users.Store(uuid, s)
@@ -96,33 +125,6 @@ func main() {
 			return
 		}
 
-		//v, ok := s.Get("client")
-		//if !ok {
-		//	log.Println("error")
-		//	return
-		//}
-		//
-		//routerCli := v.(*rpcclient.RpcRouterClient)
-		//if !ok {
-		//	er := s.CloseWithMsg([]byte("被保存的数据流不是[*client.RpcCenterStream]"))
-		//	if er != nil {
-		//		log.Println(er)
-		//	}
-		//	return
-		//}
-		//
-		//resp, er := routerCli.ForwardingData(10000, 1, , string(data))
-		//if er != nil {
-		//	log.Println("error")
-		//}
-		//log.Println(resp)
-		//
-		//er := s.Write(data)
-		//if er != nil {
-		//	log.Println("error")
-		//	return
-		//}
-
 		v, ok := s.Get("uuid")
 		if !ok {
 			log.Println("error")
@@ -137,17 +139,6 @@ func main() {
 	})
 
 	m.HandleDisconnect(func(s *melody.Session) {
-		//v, ok := s.Get("client")
-		//if !ok {
-		//	log.Println("error")
-		//	return
-		//}
-		//
-		//routerCli := v.(*rpcclient.RpcRouterClient)
-		//if er := routerCli.Stop(); er != nil {
-		//	log.Println("断开stream错误", er)
-		//}
-
 		v, ok := s.Get("uuid")
 		if !ok {
 			log.Println("error")
@@ -171,34 +162,7 @@ func main() {
 		log.Panic(er)
 	}
 
-	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ForwardMessage) {
-		switch response.ServiceId {
-		case ggconstant.CRouterServiceId:
-			v, ok := users.Load(response.Uuid)
-			if !ok {
-				log.Println("session error", response.Uuid)
-				return
-			}
-			s := v.(*melody.Session)
-
-			pro := protocol.RequestChat{}
-			if er = proto.Unmarshal(response.Msg, &pro); er != nil {
-				log.Println(er)
-				return
-			}
-
-			log.Println(pro)
-
-			er = s.Write([]byte(fmt.Sprintf(`{"input":%s}`, pro.Msg)))
-			if er != nil {
-				log.Println("error")
-				return
-			}
-		default:
-			log.Println("error")
-		}
-	})
-
+	rpcRouterStream, er = rpcRouterCli.CreateStream(onRouterMessage)
 	if er != nil {
 		log.Panic(er)
 	}
