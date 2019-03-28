@@ -1,7 +1,6 @@
 package rpcservice
 
 import (
-	"context"
 	"demo/gogame/proto/platform"
 	log "github.com/alecthomas/log4go"
 	"io"
@@ -45,9 +44,4 @@ func (r *RpcPlatformServer) BidStream(stream platformsvr.Platform_BidStreamServe
 	}
 
 	return nil
-}
-
-func (r *RpcPlatformServer) RegisterService(context context.Context, req *platformsvr.RequestRegisterService) (*platformsvr.ResponseRegisterService, error) {
-	log.Info(req)
-	return &platformsvr.ResponseRegisterService{Status: 0, Msg: "success"}, nil
 }

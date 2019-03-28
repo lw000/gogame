@@ -8,8 +8,8 @@ import (
 )
 
 type RpcLoggerClient struct {
-	conn *grpc.ClientConn
-	c    loggersvr.LoggerClient
+	conn   *grpc.ClientConn
+	client loggersvr.LoggerClient
 }
 
 func (r *RpcLoggerClient) Start(address string) error {
@@ -20,18 +20,22 @@ func (r *RpcLoggerClient) Start(address string) error {
 		return er
 	}
 
-	r.c = loggersvr.NewLoggerClient(r.conn)
+	r.client = loggersvr.NewLoggerClient(r.conn)
 
 	return nil
 }
 
-func (r *RpcLoggerClient) Stop() {
+func (r *RpcLoggerClient) Stop() error {
+	er := r.conn.Close()
+	if er != nil {
 
+	}
+	return er
 }
 
 func (r *RpcLoggerClient) WriteLogger(msg string) error {
 	ctx := context.Background()
-	reply, er := r.c.WriteLogger(ctx, &loggersvr.Request{ServerId: 10000, ServerTag: "platformsrv", Msg: msg})
+	reply, er := r.client.WriteLogger(ctx, &loggersvr.Request{ServerId: 10000, ServerTag: "platformsrv", Msg: msg})
 	if er != nil {
 		log.Error("did not connect:%v", er)
 		return er

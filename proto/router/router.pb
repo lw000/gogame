@@ -2,39 +2,35 @@ syntax = "proto3";
 
 package routersvr; //包名
 
-// Chat 微服务
+// Router 微服务
 service Router {
-    rpc BidStream(stream ForwardRequest) returns (stream ForwardResponse){}
     rpc RegisterService(RequestRegisterService) returns (ResponseRegisterService){}
-    rpc ForwardingData(ForwardRequest) returns (ForwardResponse){}
+    rpc ForwardingData(ForwardMessage) returns (ForwardMessage){}
+    rpc ForwardingDataStream(stream ForwardMessage) returns (stream ForwardMessage){}
 }
 
-// ForwardRequest 请求数据格式
-message ForwardRequest {
+// ForwardMessage 转发数据格式
+message ForwardMessage {
     int32 serviceId = 1;
     string uuid = 2;
-    int32 mainId = 3;
-    int32 subId = 4;
-    string input = 6;
-}
-
-// ForwardResponse 响应数据格式
-message ForwardResponse {
-    int32 serviceId = 1;
-    string uuid = 2;
-    int32 mainId = 3;
-    int32 subId = 4;
-    string output = 6;
+    bytes msg = 3;
 }
 
 message RequestRegisterService {
     int32 serviceId = 1;
     string serviceName = 2;
     string serviceVersion = 3;
-    string protocol = 4;
+    string srviceProtocol = 4;
+    repeated RouterProtocol protocols = 5;
 }
 
 message ResponseRegisterService {
     int32 status = 1;
-    string msg = 2;
+    string uuid = 2;
+    string msg = 3;
+}
+
+message RouterProtocol {
+    int32 mainId = 2;
+    int32 subId = 3;
 }

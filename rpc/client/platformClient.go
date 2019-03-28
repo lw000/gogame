@@ -9,8 +9,8 @@ import (
 )
 
 type RpcPlatformClient struct {
-	conn *grpc.ClientConn
-	c    platformsvr.PlatformClient
+	conn   *grpc.ClientConn
+	client platformsvr.PlatformClient
 }
 
 type RpcPlatformStream struct {
@@ -25,32 +25,23 @@ func (r *RpcPlatformClient) Start(address string) error {
 		log.Error("did not connect: %v", er)
 		return er
 	}
-	r.c = platformsvr.NewPlatformClient(r.conn)
+	r.client = platformsvr.NewPlatformClient(r.conn)
 
 	return nil
 }
 
-func (r *RpcPlatformClient) Stop() {
-
-}
-
-func (r *RpcPlatformClient) RegisterService() {
-	ctx := context.Background()
-	reply, er := r.c.RegisterService(ctx, &platformsvr.RequestRegisterService{ServiceId: 1000, ServiceName: "platform", ServiceVersion: "1.0.1"})
+func (r *RpcPlatformClient) Stop() error {
+	er := r.conn.Close()
 	if er != nil {
-		log.Error("did not connect:%v", er)
-		return
-	}
 
-	if reply.Status != 1 {
-		log.Error(reply)
 	}
+	return er
 }
 
 func (r *RpcPlatformClient) CreateStream(onMessage func(response *platformsvr.Response)) (*RpcPlatformStream, error) {
 	var er error
 	var rpcStream RpcPlatformStream
-	rpcStream.stream, er = r.c.BidStream(context.Background())
+	rpcStream.stream, er = r.client.BidStream(context.Background())
 	if er != nil {
 		log.Error(er)
 		return nil, er

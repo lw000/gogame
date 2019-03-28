@@ -3,11 +3,14 @@ package main
 import (
 	"demo/gogame/cmd/gateway/global"
 	"demo/gogame/common/utilty"
+	"demo/gogame/constant"
+	"demo/gogame/proto"
 	"demo/gogame/proto/router"
 	"demo/gogame/rpc/client"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/golang/protobuf/proto"
 	"github.com/olahol/melody"
 	"log"
 	"net/http"
@@ -74,13 +77,22 @@ func main() {
 	})
 
 	m.HandleMessage(func(s *melody.Session, data []byte) {
+		var er error
 		var rdata RecvData
-		if er := json.Unmarshal(data, &rdata); er != nil {
+		if er = json.Unmarshal(data, &rdata); er != nil {
 			log.Println("解析输入信息失败:", er)
 			er = s.CloseWithMsg([]byte("输入信息解析失败"))
 			if er != nil {
 				log.Println(er)
 			}
+			return
+		}
+
+		var newdata []byte
+		pro := protocol.RequestChat{Uid: rdata.Uid, Msg: rdata.Input}
+		newdata, er = proto.Marshal(&pro)
+		if er != nil {
+			log.Println(er)
 			return
 		}
 
@@ -118,7 +130,7 @@ func main() {
 		}
 		uuid := v.(string)
 
-		if er := rpcRouterStream.SendMessage(10000, 1, uuid, string(data)); er != nil {
+		if er = rpcRouterStream.SendMessage(uuid, newdata); er != nil {
 			er = s.CloseWithMsg([]byte("向gRPC服务端发送消息失败:" + er.Error()))
 			return
 		}
@@ -148,22 +160,20 @@ func main() {
 		log.Println("websocket的断开连接", uuid)
 	})
 
-	rpcLoggerCli = &rpcclient.RpcLoggerClient{}
-	if er := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port)); er != nil {
-		log.Panic(er)
-	}
-
-	rpcRouterCli = &rpcclient.RpcRouterClient{}
-	if er := rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterServ.Host, global.Cfg.RouterServ.Port)); er != nil {
-		log.Panic(er)
-	}
-
 	var er error
-	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ForwardResponse) {
-		switch response.MainId {
-		case 10000:
-			log.Println(response)
+	rpcLoggerCli = &rpcclient.RpcLoggerClient{}
+	if er = rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port)); er != nil {
+		log.Panic(er)
+	}
 
+	rpcRouterCli = &rpcclient.RpcRouterClient{ServiceId: ggconstant.CRouterServiceId, UUID: ggutilty.UUID()}
+	if er = rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterServ.Host, global.Cfg.RouterServ.Port)); er != nil {
+		log.Panic(er)
+	}
+
+	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ForwardMessage) {
+		switch response.ServiceId {
+		case ggconstant.CRouterServiceId:
 			v, ok := users.Load(response.Uuid)
 			if !ok {
 				log.Println("session error", response.Uuid)
@@ -171,11 +181,21 @@ func main() {
 			}
 			s := v.(*melody.Session)
 
-			er = s.Write([]byte(response.Output))
+			pro := protocol.RequestChat{}
+			if er = proto.Unmarshal(response.Msg, &pro); er != nil {
+				log.Println(er)
+				return
+			}
+
+			log.Println(pro)
+
+			er = s.Write([]byte(fmt.Sprintf(`{"input":%s}`, pro.Msg)))
 			if er != nil {
 				log.Println("error")
 				return
 			}
+		default:
+			log.Println("error")
 		}
 	})
 

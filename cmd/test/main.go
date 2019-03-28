@@ -27,7 +27,7 @@ func CreateWs(uid int) {
 		m["input"] = strings.Repeat(suid, 2)
 
 		tickHeartBeat := time.NewTicker(time.Second * time.Duration(30))
-		t := rand.Intn(25) + 5
+		t := rand.Intn(5) + 1
 		tickSend := time.NewTicker(time.Second * time.Duration(t))
 		for {
 			select {
@@ -63,7 +63,7 @@ func CreateWs(uid int) {
 }
 
 func main() {
-	for i := 10000; i < 25000; i++ {
+	for i := 10000; i < 10010; i++ {
 		go CreateWs(i)
 		time.Sleep(time.Microsecond * time.Duration(10))
 	}

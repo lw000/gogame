@@ -9,8 +9,8 @@ import (
 )
 
 type RpcDbClient struct {
-	conn *grpc.ClientConn
-	c    dbsvr.DBClient
+	conn   *grpc.ClientConn
+	client dbsvr.DBClient
 }
 
 type RpcDbStream struct {
@@ -26,19 +26,23 @@ func (r *RpcDbClient) Start(address string) error {
 		return er
 	}
 
-	r.c = dbsvr.NewDBClient(r.conn)
+	r.client = dbsvr.NewDBClient(r.conn)
 
 	return nil
 }
 
-func (r *RpcDbClient) Stop() {
+func (r *RpcDbClient) Stop() error {
+	er := r.conn.Close()
+	if er != nil {
 
+	}
+	return er
 }
 
 func (r *RpcDbClient) CreateStream(onMessage func(response *dbsvr.Response)) (*RpcDbStream, error) {
 	var er error
 	var rpcStream RpcDbStream
-	rpcStream.stream, er = r.c.BidStream(context.Background())
+	rpcStream.stream, er = r.client.BidStream(context.Background())
 	if er != nil {
 		log.Error(er)
 		return nil, er

@@ -13,7 +13,7 @@ import (
 
 var (
 	rpcLoggerCli    *rpcclient.RpcLoggerClient
-	rpcCenterCli    *rpcclient.RpcCenterClient
+	rpcCenterCli    *rpcclient.RpcGatewayClient
 	rpcCenterStream *rpcclient.RpcCenterStream
 )
 
@@ -58,7 +58,7 @@ func main() {
 		log.Panic(er)
 	}
 
-	rpcCenterCli = &rpcclient.RpcCenterClient{}
+	rpcCenterCli = &rpcclient.RpcGatewayClient{}
 	if er := rpcCenterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.GateWay.Host, global.Cfg.GateWay.Port)); er != nil {
 		log.Panic(er)
 	}

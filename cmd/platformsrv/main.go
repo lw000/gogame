@@ -2,16 +2,13 @@ package main
 
 import (
 	"demo/gogame/cmd/platformsrv/global"
-	"demo/gogame/cmd/platformsrv/htp"
 	"demo/gogame/cmd/platformsrv/platform"
 	"demo/gogame/common/sys"
-	"demo/gogame/proto/center"
+	"demo/gogame/constant"
 	"demo/gogame/proto/db"
-	"demo/gogame/proto/platform"
+	"demo/gogame/proto/router"
 	"demo/gogame/rpc/client"
-	"demo/gogame/rpc/service"
 	"fmt"
-	"google.golang.org/grpc"
 	"log"
 	"sync/atomic"
 	"time"
@@ -20,13 +17,11 @@ import (
 var (
 	plat *platform.Platform
 
-	rpcPlatformSvr *rpcservice.RpcPlatformServer
-
 	rpcLoggerCli *rpcclient.RpcLoggerClient
-	rpcCenterCli *rpcclient.RpcCenterClient
+	rpcRouterCli *rpcclient.RpcRouterClient
 	rpcDbCli     *rpcclient.RpcDbClient
 
-	rpcCenterStream *rpcclient.RpcCenterStream
+	rpcRouterStream *rpcclient.RpcRouterStream
 	rpcDbStream     *rpcclient.RpcDbStream
 )
 
@@ -42,19 +37,19 @@ func Test() {
 		}
 	}()
 
-	//网关数据发送测试
-	go func() {
-		for {
-			var requestId int32 = 0
-			atomic.AddInt32(&requestId, 1)
-			er := rpcCenterStream.SendMessage(1, 10000, requestId, "platform-1")
-			if er != nil {
-				log.Println(er)
-				return
-			}
-			time.Sleep(time.Second * time.Duration(1))
-		}
-	}()
+	//路由数据发送测试
+	//go func() {
+	//	for {
+	//		var requestId int32 = 0
+	//		atomic.AddInt32(&requestId, 1)
+	//		er := rpcRouterStream.SendMessage(ggconstant.CPlatformMainId, 1, "", "platform-1")
+	//		if er != nil {
+	//			log.Println(er)
+	//			return
+	//		}
+	//		time.Sleep(time.Second * time.Duration(1))
+	//	}
+	//}()
 
 	//测试数据库服务
 	go func() {
@@ -86,42 +81,24 @@ func main() {
 		log.Panic(er)
 	}
 
-	pfh := htp.PlatformHtp{}
-	if er := pfh.Start(global.Cfg.HTTPPort); er != nil {
-		log.Panic(er)
-	}
-
-	rpcPlatformSvr = &rpcservice.RpcPlatformServer{}
-	rpcPlatformSvr.HandleMessage(func(stream platformsvr.Platform_BidStreamServer, req *platformsvr.Request) {
-		log.Println(req)
-
-		switch req.MainId {
-		case 0:
-			er := stream.Send(&platformsvr.Response{MainId: req.MainId, SubId: req.SubId, RequestId: req.RequestId, Output: req.Input})
-			if er != nil {
-				log.Println(er)
-			}
-		case 1:
-			er := stream.Send(&platformsvr.Response{MainId: req.MainId, SubId: req.SubId, RequestId: req.RequestId, Output: req.Input})
-			if er != nil {
-				log.Println(er)
-			}
-		}
-	})
-	rpcSvr := &rpcservice.RpcServer{}
-	if er := rpcSvr.StartService(global.Cfg.Port, func(serv *grpc.Server) {
-		platformsvr.RegisterPlatformServer(serv, rpcPlatformSvr)
-	}); er != nil {
-		log.Panic(er)
-	}
-
 	rpcLoggerCli = &rpcclient.RpcLoggerClient{}
 	if er := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port)); er != nil {
 		log.Panic(er)
 	}
 
-	rpcCenterCli = &rpcclient.RpcCenterClient{}
-	if er := rpcCenterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.GateWay.Host, global.Cfg.GateWay.Port)); er != nil {
+	rpcRouterCli = &rpcclient.RpcRouterClient{}
+	if er := rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterWay.Host, global.Cfg.RouterWay.Port)); er != nil {
+		log.Panic(er)
+	}
+
+	protocols := []*routersvr.RouterProtocol{
+		&routersvr.RouterProtocol{MainId: ggconstant.CPlatformMainId, SubId: 100},
+		&routersvr.RouterProtocol{MainId: ggconstant.CPlatformMainId, SubId: 101},
+		&routersvr.RouterProtocol{MainId: ggconstant.CPlatformMainId, SubId: 102},
+		&routersvr.RouterProtocol{MainId: ggconstant.CPlatformMainId, SubId: 103},
+		&routersvr.RouterProtocol{MainId: ggconstant.CPlatformMainId, SubId: 104},
+	}
+	if er := rpcRouterCli.RegisterService(protocols); er != nil {
 		log.Panic(er)
 	}
 
@@ -131,7 +108,7 @@ func main() {
 	}
 
 	var er error
-	rpcCenterStream, er = rpcCenterCli.CreateStream(func(response *centersvr.Response) {
+	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ForwardResponse) {
 		switch response.MainId {
 		case 1:
 			log.Println(response)

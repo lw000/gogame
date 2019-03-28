@@ -3,8 +3,8 @@ package main
 import (
 	"demo/gogame/cmd/gamesrv/global"
 	"demo/gogame/common/sys"
-	"demo/gogame/proto/center"
 	"demo/gogame/proto/db"
+	"demo/gogame/proto/gateway"
 	"demo/gogame/rpc/client"
 	"fmt"
 	"log"
@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	rpcLoggerCli *rpcclient.RpcLoggerClient
-	rpcCenterCli *rpcclient.RpcCenterClient
-	rpcDbCli     *rpcclient.RpcDbClient
+	rpcLoggerCli  *rpcclient.RpcLoggerClient
+	rpcGatewatCli *rpcclient.RpcGatewayClient
+	rpcDbCli      *rpcclient.RpcDbClient
 
 	rpcCenterStream *rpcclient.RpcCenterStream
 	rpcDbStream     *rpcclient.RpcDbStream
@@ -75,13 +75,13 @@ func main() {
 		log.Panic(er)
 	}
 
-	rpcCenterCli = &rpcclient.RpcCenterClient{}
-	if er := rpcCenterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.GateWay.Host, global.Cfg.GateWay.Port)); er != nil {
+	rpcGatewatCli = &rpcclient.RpcGatewayClient{}
+	if er := rpcGatewatCli.Start(fmt.Sprintf("%s:%d", global.Cfg.GateWay.Host, global.Cfg.GateWay.Port)); er != nil {
 		log.Panic(er)
 	}
 
 	var er error
-	rpcCenterStream, er = rpcCenterCli.CreateStream(func(response *centersvr.Response) {
+	rpcCenterStream, er = rpcGatewatCli.CreateStream(func(response *gatewaysvr.Response) {
 		switch response.MainId {
 		case 1:
 			log.Println(response)
