@@ -5,6 +5,7 @@ package game; //包名
 // Chat 微服务
 service Game {
     rpc BidStream(stream Request) returns (stream Response){}
+    rpc RegisterService(RequestRegisterService) returns (ResponseRegisterService){}
 }
 
 // Request 请求数据格式
@@ -23,4 +24,13 @@ message Response {
     string output = 4;
 }
 
+message RequestRegisterService {
+    int32 serviceId = 1;
+    string serviceName = 2;
+    string serviceVersion = 3;
+}
 
+message ResponseRegisterService {
+    int32 status = 1;
+    string msg = 2;
+}

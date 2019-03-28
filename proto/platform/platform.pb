@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package platform; //包名
+package platformsvr; //包名
 
 // Chat 微服务
 service Platform {

@@ -2,7 +2,9 @@ package main
 
 import (
 	"demo/gogame/cmd/loggersrv/global"
-	"demo/gogame/cmd/loggersrv/rpc"
+	"demo/gogame/proto/logger"
+	"demo/gogame/rpc/service"
+	"google.golang.org/grpc"
 	"log"
 )
 
@@ -11,8 +13,10 @@ func main() {
 		log.Panic(er)
 	}
 
-	l := rpc.LoggerRpc{}
-	if er := l.Start(global.Cfg.Port); er != nil {
+	rpcLoggerSvr := &rpcservice.RpcServer{}
+	if er := rpcLoggerSvr.StartService(global.Cfg.Port, func(s *grpc.Server) {
+		loggersvr.RegisterLoggerServer(s, &rpcservice.RpcLoggerServer{})
+	}); er != nil {
 		log.Panic(er)
 	}
 
