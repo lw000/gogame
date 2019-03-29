@@ -1,16 +1,11 @@
 {
     "debug": 1,
-    "port": 37313,
     "loggerServ": {
         "host": "127.0.0.1",
         "port": 37312
     },
-    "gateWay": {
+    "routerWay": {
         "host": "127.0.0.1",
         "port": 37318
-    },
-    "dbServ": {
-        "host": "127.0.0.1",
-        "port": 37316
     }
 }

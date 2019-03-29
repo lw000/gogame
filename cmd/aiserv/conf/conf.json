@@ -1,6 +1,5 @@
 {
     "debug": 1,
-    "port": 37316,
     "loggerServ": {
         "host": "127.0.0.1",
         "port": 37312
@@ -8,9 +7,5 @@
     "gateWay": {
         "host": "127.0.0.1",
         "port": 37318
-    },
-    "dbServ": {
-        "host": "127.0.0.1",
-        "port": 37316
     }
 }

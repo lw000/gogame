@@ -2,34 +2,12 @@
     "port": 37312,
     "debug": 1,
     "mysql": {
-        "status": 0,
-        "comment": "dev=0开发环境 test=1测试环境 prod=2正式环境",
-        "dev": {
-            "username": "root",
-            "password": "Aabbcc123!@#",
-            "network": "tcp",
-            "host": "192.168.1.201:3306",
-            "database": "gamedata",
-            "MaxOpenConns": 20,
-            "MaxOdleConns": 5
-        },
-        "test": {
-            "username": "root",
-            "password": "root",
-            "network": "tcp",
-            "host": "192.168.1.201:3306",
-            "database": "gamedata",
-            "MaxOpenConns": 20,
-            "MaxOdleConns": 5
-        },
-        "prod": {
-            "username": "root",
-            "password": "Aabbcc123!@#",
-            "network": "tcp",
-            "host": "47.96.230.81:3306",
-            "database": "gamedata",
-            "MaxOpenConns": 20,
-            "MaxOdleConns": 5
-        }
+        "username": "root",
+        "password": "Aabbcc123!@#",
+        "network": "tcp",
+        "host": "192.168.1.201:3306",
+        "database": "gamedata",
+        "MaxOpenConns": 20,
+        "MaxOdleConns": 5
     }
 }

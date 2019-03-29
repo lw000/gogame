@@ -6,7 +6,7 @@ import (
 )
 
 type JsonConfig struct {
-	GateWay struct {
+	RouterWay struct {
 		Host string
 		Port int64
 	}
@@ -14,11 +14,6 @@ type JsonConfig struct {
 		Host string
 		Port int64
 	}
-	DBServ struct {
-		Host string
-		Port int64
-	}
-	Port  int64
 	Debug int64
 }
 
@@ -39,16 +34,12 @@ func LoadJsonConfig(file string) (*JsonConfig, error) {
 
 	cfg := NewJsonConfig()
 	cfg.Debug = cfgStruct.Debug
-	cfg.Port = cfgStruct.Port
 
 	cfg.LoggerServ.Host = cfgStruct.LoggerServ.Host
 	cfg.LoggerServ.Port = cfgStruct.LoggerServ.Port
 
-	cfg.GateWay.Host = cfgStruct.GateWay.Host
-	cfg.GateWay.Port = cfgStruct.GateWay.Port
-
-	cfg.DBServ.Host = cfgStruct.DBServ.Host
-	cfg.DBServ.Port = cfgStruct.DBServ.Port
+	cfg.RouterWay.Host = cfgStruct.RouterWay.Host
+	cfg.RouterWay.Port = cfgStruct.RouterWay.Port
 
 	return cfg, err
 }

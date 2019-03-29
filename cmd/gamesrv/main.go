@@ -4,7 +4,7 @@ import (
 	"demo/gogame/cmd/gamesrv/global"
 	"demo/gogame/common/sys"
 	"demo/gogame/proto/db"
-	"demo/gogame/proto/gateway"
+	"demo/gogame/proto/router"
 	"demo/gogame/rpc/client"
 	"fmt"
 	"log"
@@ -13,11 +13,11 @@ import (
 )
 
 var (
-	rpcLoggerCli  *rpcclient.RpcLoggerClient
-	rpcGatewatCli *rpcclient.RpcGatewayClient
-	rpcDbCli      *rpcclient.RpcDbClient
+	rpcLoggerCli *rpcclient.RpcLoggerClient
+	rpcRouterCli *rpcclient.RpcRouterClient
+	rpcDbCli     *rpcclient.RpcDbClient
 
-	rpcCenterStream *rpcclient.RpcCenterStream
+	rpcRouterStream *rpcclient.RpcRouterStream
 	rpcDbStream     *rpcclient.RpcDbStream
 )
 
@@ -27,7 +27,7 @@ func Test() {
 		for {
 			var requestId int32 = 0
 			atomic.AddInt32(&requestId, 1)
-			er := rpcCenterStream.SendMessage(1, 10000, requestId, "gamesrv-1")
+			er := rpcRouterStream.ForwardMessage("", []byte("gamesrv-1"))
 			if er != nil {
 				log.Println(er)
 				return
@@ -75,14 +75,14 @@ func main() {
 		log.Panic(er)
 	}
 
-	rpcGatewatCli = &rpcclient.RpcGatewayClient{}
-	if er := rpcGatewatCli.Start(fmt.Sprintf("%s:%d", global.Cfg.GateWay.Host, global.Cfg.GateWay.Port)); er != nil {
+	rpcRouterCli = &rpcclient.RpcRouterClient{}
+	if er := rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterWay.Host, global.Cfg.RouterWay.Port)); er != nil {
 		log.Panic(er)
 	}
 
 	var er error
-	rpcCenterStream, er = rpcGatewatCli.CreateStream(func(response *gatewaysvr.Response) {
-		switch response.MainId {
+	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ForwardMessage) {
+		switch response.ServiceId {
 		case 1:
 			log.Println(response)
 		case 2:

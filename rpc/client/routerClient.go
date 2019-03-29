@@ -88,7 +88,7 @@ func (r *RpcRouterClient) Stop() error {
 
 func (r *RpcRouterClient) CreateStream(onMessage func(response *routersvr.ForwardMessage)) (*RpcRouterStream, error) {
 	var er error
-	rpcStream := &RpcRouterStream{onMessage: onMessage}
+	rpcStream := &RpcRouterStream{client: r, onMessage: onMessage}
 	rpcStream.stream, er = r.client.ForwardingDataStream(context.Background())
 	if er != nil {
 		log.Error(er)

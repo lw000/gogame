@@ -27,7 +27,7 @@ var (
 	rpcRouterStream *rpcclient.RpcRouterStream
 	rpcLoggerCli    *rpcclient.RpcLoggerClient
 
-	users sync.Map
+	clients sync.Map
 )
 
 func Test() {
@@ -55,7 +55,7 @@ func onRouterMessage(response *routersvr.ForwardMessage) {
 
 		log.Printf("%+v\n", pro)
 
-		v, ok := users.Load(response.Uuid)
+		v, ok := clients.Load(response.Uuid)
 		if !ok {
 			log.Println("session error", response.Uuid)
 			return
@@ -67,7 +67,7 @@ func onRouterMessage(response *routersvr.ForwardMessage) {
 			return
 		}
 
-		er := s.Write([]byte(fmt.Sprintf(`{"uid":%s "input":%s}`, pro.Uid, pro.Msg)))
+		er := s.Write([]byte(fmt.Sprintf(`{"uid":%s, "input":%s}`, pro.Uid, pro.Msg)))
 		if er != nil {
 			log.Println("error")
 			return
@@ -93,7 +93,7 @@ func main() {
 	r.GET("ws", func(c *gin.Context) {
 		er := m.HandleRequest(c.Writer, c.Request)
 		if er != nil {
-
+			log.Println(er)
 		}
 		log.Println(c.Query("uid"))
 	})
@@ -101,7 +101,7 @@ func main() {
 	m.HandleConnect(func(s *melody.Session) {
 		uuid := ggutilty.UUID()
 		s.Set("uuid", uuid)
-		users.Store(uuid, s)
+		clients.Store(uuid, s)
 		log.Println("websocket的连接成功", uuid)
 	})
 
@@ -146,7 +146,7 @@ func main() {
 		}
 		uuid := v.(string)
 
-		users.Delete(uuid)
+		clients.Delete(uuid)
 
 		log.Println("websocket的断开连接", uuid)
 	})
