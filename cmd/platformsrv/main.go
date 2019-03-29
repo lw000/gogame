@@ -108,8 +108,8 @@ func main() {
 	}
 
 	var er error
-	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ForwardResponse) {
-		switch response.MainId {
+	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ForwardMessage) {
+		switch response.ServiceId {
 		case 1:
 			log.Println(response)
 		case 2:

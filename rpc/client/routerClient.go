@@ -1,7 +1,6 @@
 package rpcclient
 
 import (
-	"demo/gogame/common/utilty"
 	"demo/gogame/proto/router"
 	log "github.com/alecthomas/log4go"
 	"golang.org/x/net/context"
@@ -17,7 +16,13 @@ type RpcRouterClient struct {
 	client    routersvr.RouterClient
 	status    int
 	m         sync.RWMutex
-	streams   []routersvr.Router_ForwardingDataStreamClient
+	streams   []*RpcRouterStream
+}
+
+type RpcRouterStream struct {
+	onMessage func(response *routersvr.ForwardMessage)
+	client    *RpcRouterClient
+	stream    routersvr.Router_ForwardingDataStreamClient
 }
 
 func (r *RpcRouterClient) Status() int {
@@ -32,13 +37,6 @@ func (r *RpcRouterClient) SetStatus(status int) {
 	r.m.Lock()
 	defer r.m.Unlock()
 	r.status = status
-}
-
-type RpcRouterStream struct {
-	serviceId int32
-	uuid      string
-	onMessage func(response *routersvr.ForwardMessage)
-	stream    routersvr.Router_ForwardingDataStreamClient
 }
 
 func (r *RpcRouterClient) Start(address string) error {
@@ -74,30 +72,37 @@ func (r *RpcRouterClient) ForwardingData(uuid string, msg []byte) (*routersvr.Fo
 }
 
 func (r *RpcRouterClient) Stop() error {
-	er := r.conn.Close()
+	var er error
+	for _, s := range r.streams {
+		er = s.CloseSend()
+		if er != nil {
+			log.Error(er)
+		}
+	}
+	er = r.conn.Close()
 	if er != nil {
-
+		log.Error(er)
 	}
 	return er
 }
 
 func (r *RpcRouterClient) CreateStream(onMessage func(response *routersvr.ForwardMessage)) (*RpcRouterStream, error) {
 	var er error
-	rpcStream := &RpcRouterStream{serviceId: r.ServiceId, uuid: ggutilty.UUID(), onMessage: onMessage}
+	rpcStream := &RpcRouterStream{onMessage: onMessage}
 	rpcStream.stream, er = r.client.ForwardingDataStream(context.Background())
 	if er != nil {
 		log.Error(er)
 		return nil, er
 	}
-	r.streams = append(r.streams, rpcStream.stream)
+	r.streams = append(r.streams, rpcStream)
 
 	go rpcStream.run()
 
 	return rpcStream, nil
 }
 
-func (r *RpcRouterStream) SendMessage(uuid string, msg []byte) error {
-	if er := r.stream.Send(&routersvr.ForwardMessage{ServiceId: r.serviceId, Uuid: uuid, Msg: msg}); er != nil {
+func (r *RpcRouterStream) ForwardMessage(uuid string, msg []byte) error {
+	if er := r.stream.Send(&routersvr.ForwardMessage{ServiceId: r.client.ServiceId, Uuid: uuid, Msg: msg}); er != nil {
 		log.Error(er)
 		return er
 	}

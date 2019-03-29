@@ -102,7 +102,7 @@ func (f *FastWsClient) Run() {
 }
 
 func main() {
-	for i := 10000; i < 20000; i++ {
+	for i := 10000; i < 10100; i++ {
 		ws := FastWsClient{uid: i}
 		er := ws.Create()
 		if er != nil {

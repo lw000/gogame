@@ -25,7 +25,6 @@ type RecvData struct {
 
 var (
 	rpcRouterStream *rpcclient.RpcRouterStream
-	rpcRouterCli    *rpcclient.RpcRouterClient
 	rpcLoggerCli    *rpcclient.RpcLoggerClient
 
 	users sync.Map
@@ -61,6 +60,7 @@ func onRouterMessage(response *routersvr.ForwardMessage) {
 			log.Println("session error", response.Uuid)
 			return
 		}
+
 		s := v.(*melody.Session)
 		if s.IsClosed() {
 			log.Println("session closed")
@@ -117,9 +117,9 @@ func main() {
 			return
 		}
 
-		var newdata []byte
+		var pbData []byte
 		pro := protocol.RequestChat{Uid: rdata.Uid, Msg: rdata.Input}
-		newdata, er = proto.Marshal(&pro)
+		pbData, er = proto.Marshal(&pro)
 		if er != nil {
 			log.Println(er)
 			return
@@ -132,7 +132,7 @@ func main() {
 		}
 		uuid := v.(string)
 
-		if er = rpcRouterStream.SendMessage(uuid, newdata); er != nil {
+		if er = rpcRouterStream.ForwardMessage(uuid, pbData); er != nil {
 			er = s.CloseWithMsg([]byte("向gRPC服务端发送消息失败:" + er.Error()))
 			return
 		}
@@ -157,7 +157,7 @@ func main() {
 		log.Panic(er)
 	}
 
-	rpcRouterCli = &rpcclient.RpcRouterClient{ServiceId: ggconstant.CRouterServiceId, UUID: ggutilty.UUID()}
+	rpcRouterCli := &rpcclient.RpcRouterClient{ServiceId: ggconstant.CRouterServiceId, UUID: ggutilty.UUID()}
 	if er = rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterServ.Host, global.Cfg.RouterServ.Port)); er != nil {
 		log.Panic(er)
 	}
