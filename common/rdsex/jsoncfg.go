@@ -7,32 +7,14 @@ import (
 )
 
 //{
-//	"status": 0,
-//	"comment": "dev=0开发环境 test=1测试环境 prod=2正式环境",
-//	"dev": {
-//		"host": "192.168.1.201:6379",
-//		"psd": "",
-//		"db": 0,
-//		"poolSize": 20,
-//		"minIdleConns": 5
-//	},
-//	"test": {
-//		"host": "192.168.1.201:6379",
-//		"psd": "",
-//		"db": 0,
-//		"poolSize": 20,
-//		"minIdleConns": 5
-//	},
-//	"prod": {
-//		"host": "127.0.0.1:6379",
-//		"psd": "123456",
-//		"db": 0,
-//		"poolSize": 20,
-//		"minIdleConns": 5
-//	}
+//"host": "127.0.0.1:6379",
+//"psd": "123456",
+//"db": 0,
+//"poolSize": 20,
+//"minIdleConns": 5
 //}
 
-type RedisConfigItemStruct struct {
+type RdsConfigStruct struct {
 	Host         string `json:"host"`
 	Psd          string `json:"psd"`
 	Db           int64  `json:"db"`
@@ -40,16 +22,8 @@ type RedisConfigItemStruct struct {
 	MinIdleConns int64  `json:"minIdleConns"`
 }
 
-type configStruct struct {
-	Status  int64                 `json:"status"`
-	Comment string                `json:"comment"`
-	Dev     RedisConfigItemStruct `json:"dev"`
-	Test    RedisConfigItemStruct `json:"test"`
-	Prod    RedisConfigItemStruct `json:"prod"`
-}
-
 type Config struct {
-	Cfg RedisConfigItemStruct
+	Cfg RdsConfigStruct
 }
 
 func NewConfig() *Config {
@@ -68,21 +42,8 @@ func (c *Config) Load(file string) error {
 		return err
 	}
 
-	var cfgstruct configStruct
-	if err := json.Unmarshal(data, &cfgstruct); err != nil {
+	if err = json.Unmarshal(data, &c.Cfg); err != nil {
 		return err
-	}
-
-	if cfgstruct.Status == 0 {
-		c.Cfg = cfgstruct.Dev
-	}
-
-	if cfgstruct.Status == 1 {
-		c.Cfg = cfgstruct.Test
-	}
-
-	if cfgstruct.Status == 1 {
-		c.Cfg = cfgstruct.Prod
 	}
 
 	return nil

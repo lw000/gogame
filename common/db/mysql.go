@@ -63,7 +63,7 @@ func (m *Mysql) OpenWithYamlConfig(cfg *YamlMysqlCfg) (*Mysql, error) {
 	return m.open(c)
 }
 
-func (m *Mysql) OpenWithJsonConfig(cfg *MysqlConfigItemStruct) (*Mysql, error) {
+func (m *Mysql) OpenWithJsonConfig(cfg *MysqlConfigStruct) (*Mysql, error) {
 	c := make(map[string]interface{})
 	c["username"] = cfg.Username
 	c["password"] = cfg.Password
@@ -80,7 +80,6 @@ func (m *Mysql) open(cfg map[string]interface{}) (*Mysql, error) {
 		password     string
 		host         string
 		database     string
-		network      string
 		maxOpenConns int64
 		maxOdleConns int64
 	)
@@ -109,12 +108,6 @@ func (m *Mysql) open(cfg map[string]interface{}) (*Mysql, error) {
 		return nil, errors.New("host is empty")
 	}
 
-	if v, ok := cfg["network"]; ok {
-		network = v.(string)
-	} else {
-		network = "tcp"
-	}
-
 	if v, ok := cfg["MaxOpenConns"]; ok {
 		maxOpenConns = v.(int64)
 	} else {
@@ -128,7 +121,7 @@ func (m *Mysql) open(cfg map[string]interface{}) (*Mysql, error) {
 	}
 
 	var err error
-	dns := fmt.Sprintf("%s:%s@%s(%s)/%s?charset=utf8&parseTime=true", username, password, network, host, database)
+	dns := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true", username, password, host, database)
 	m.db, err = sql.Open("mysql", dns)
 	if err != nil {
 		return nil, err

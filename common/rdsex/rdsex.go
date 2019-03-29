@@ -62,7 +62,7 @@ func (rs *RdsServer) connect(host string, psd string, db int64, poolSize int64, 
 	return rs, nil
 }
 
-func (rs *RdsServer) ConnectRedis(c *RedisConfigItemStruct) (*RdsServer, error) {
+func (rs *RdsServer) ConnectRedis(c *RdsConfigStruct) (*RdsServer, error) {
 	if rs == nil {
 		return nil, errors.New("object is nil")
 	}
