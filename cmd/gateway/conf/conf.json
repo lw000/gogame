@@ -1,5 +1,5 @@
 {
-    "port": 37318,
+    "port": 10010,
     "debug": 1,
     "loggerServ": {
         "host": "127.0.0.1",

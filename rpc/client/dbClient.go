@@ -14,7 +14,7 @@ type RpcDbClient struct {
 }
 
 type RpcDbStream struct {
-	onMessage func(response *dbsvr.Response)
+	onMessage func(*dbsvr.Response)
 	stream    dbsvr.DB_BidStreamClient
 }
 

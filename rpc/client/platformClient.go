@@ -14,7 +14,7 @@ type RpcPlatformClient struct {
 }
 
 type RpcPlatformStream struct {
-	onMessage func(response *platformsvr.Response)
+	onMessage func(*platformsvr.Response)
 	stream    platformsvr.Platform_BidStreamClient
 }
 

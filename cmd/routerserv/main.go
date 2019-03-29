@@ -2,7 +2,6 @@ package main
 
 import (
 	"demo/gogame/cmd/gateway/global"
-	"demo/gogame/common/utilty"
 	"demo/gogame/constant"
 	"demo/gogame/proto/router"
 	"demo/gogame/rpc/client"
@@ -45,34 +44,27 @@ func main() {
 	}
 
 	rpcRouterServ = &rpcservice.RpcRouterServer{ServiceId: ggconstant.CRouterServiceId}
-	rpcRouterServ.HandleConnect(func(stream routersvr.Router_ForwardingDataStreamServer) {
-		services.Store(ggutilty.UUID(), stream)
+	rpcRouterServ.HandleConnect(func(stream *rpcservice.RpcRouterServerStream) {
+		log.Println("子服务器连接", stream)
+		services.Store(stream.Uuid(), stream)
 	})
 
-	rpcRouterServ.HandleDisConnected(func(stream routersvr.Router_ForwardingDataStreamServer) {
-
+	rpcRouterServ.HandleDisConnected(func(stream *rpcservice.RpcRouterServerStream) {
+		log.Println("子服务器断开", stream)
+		services.Delete(stream.Uuid())
 	})
 
-	rpcRouterServ.HandleRegisterService(func(protocols []*routersvr.RouterProtocol) error {
-
-		return nil
-	})
-
-	rpcRouterServ.HandleMessage(func(stream routersvr.Router_ForwardingDataStreamServer, req *routersvr.ForwardMessage) {
+	rpcRouterServ.HandleMessage(func(stream *rpcservice.RpcRouterServerStream, req *routersvr.RequestMessage) {
 		log.Println(req)
+
 		switch req.ServiceId {
-		case ggconstant.CRouterServiceId:
-			er := stream.Send(&routersvr.ForwardMessage{ServiceId: req.ServiceId, Uuid: req.Uuid, Msg: req.Msg})
-			if er != nil {
-				log.Println(er)
-			}
 		case ggconstant.CGatewayServiceId:
-			er := stream.Send(&routersvr.ForwardMessage{ServiceId: req.ServiceId, Uuid: req.Uuid, Msg: req.Msg})
+			er := stream.SendMessage(req.ServiceId, req.Uuid, req.Msg)
 			if er != nil {
 				log.Println(er)
 			}
 		case ggconstant.CPlatformServiceId:
-			er := stream.Send(&routersvr.ForwardMessage{ServiceId: req.ServiceId, Uuid: req.Uuid, Msg: req.Msg})
+			er := stream.SendMessage(req.ServiceId, req.Uuid, req.Msg)
 			if er != nil {
 				log.Println(er)
 			}

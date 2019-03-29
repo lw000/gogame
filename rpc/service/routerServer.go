@@ -1,84 +1,92 @@
 package rpcservice
 
 import (
-	"context"
+	"demo/gogame/common/utilty"
 	"demo/gogame/proto/router"
 	log "github.com/alecthomas/log4go"
 	"io"
 )
 
 type RpcRouterServer struct {
-	ServiceId         int32
-	onMessage         func(stream routersvr.Router_ForwardingDataStreamServer, req *routersvr.ForwardMessage)
-	onConnected       func(stream routersvr.Router_ForwardingDataStreamServer)
-	onDisConnected    func(stream routersvr.Router_ForwardingDataStreamServer)
-	onRegisterService func(protocols []*routersvr.RouterProtocol) error
+	ServiceId      int32
+	onMessage      func(*RpcRouterServerStream, *routersvr.RequestMessage)
+	onConnected    func(*RpcRouterServerStream)
+	onDisConnected func(*RpcRouterServerStream)
 }
 
-func (r *RpcRouterServer) HandleConnect(f func(stream routersvr.Router_ForwardingDataStreamServer)) {
+type RpcRouterServerStream struct {
+	uuid   string
+	stream routersvr.Router_BindStreamServer
+}
+
+func (r *RpcRouterServer) HandleConnect(f func(stream *RpcRouterServerStream)) {
 	r.onConnected = f
 }
 
-func (r *RpcRouterServer) HandleDisConnected(f func(stream routersvr.Router_ForwardingDataStreamServer)) {
+func (r *RpcRouterServer) HandleDisConnected(f func(stream *RpcRouterServerStream)) {
 	r.onDisConnected = f
 }
 
-func (r *RpcRouterServer) HandleMessage(f func(stream routersvr.Router_ForwardingDataStreamServer, req *routersvr.ForwardMessage)) {
+func (r *RpcRouterServer) HandleMessage(f func(stream *RpcRouterServerStream, req *routersvr.RequestMessage)) {
 	r.onMessage = f
 }
 
-func (r *RpcRouterServer) HandleRegisterService(f func(protocols []*routersvr.RouterProtocol) error) {
-	r.onRegisterService = f
-}
-
-func (r *RpcRouterServer) RegisterService(context context.Context, req *routersvr.RequestRegisterService) (*routersvr.ResponseRegisterService, error) {
-	er := r.onRegisterService(req.Protocols)
-	if er != nil {
-		return &routersvr.ResponseRegisterService{Status: 0, Msg: er.Error()}, nil
-	}
-	return &routersvr.ResponseRegisterService{Status: 1, Msg: "ok"}, nil
-}
-
-func (r *RpcRouterServer) ForwardingData(context context.Context, req *routersvr.ForwardMessage) (*routersvr.ForwardMessage, error) {
-	log.Info(req)
-	return &routersvr.ForwardMessage{ServiceId: req.ServiceId, Uuid: req.Uuid, Msg: req.Msg}, nil
-}
-
-func (r *RpcRouterServer) ForwardingDataStream(stream routersvr.Router_ForwardingDataStreamServer) error {
-	log.Info(stream)
-
+func (r *RpcRouterServer) BindStream(stream routersvr.Router_BindStreamServer) error {
+	serverStream := &RpcRouterServerStream{stream: stream, uuid: ggutilty.UUID()}
 	if r.onConnected != nil {
-		r.onConnected(stream)
+		r.onConnected(serverStream)
 	}
-
 	ctx := stream.Context()
 	for {
 		select {
 		case <-ctx.Done():
 			log.Error("收到客户端通过context发出的终止信号")
 			if r.onDisConnected != nil {
-				r.onDisConnected(stream)
+				r.onDisConnected(serverStream)
 			}
 			return ctx.Err()
 		default:
 			req, er := stream.Recv()
 			if er == io.EOF {
 				log.Error("客户端发送数据流结束")
+				if r.onDisConnected != nil {
+					r.onDisConnected(serverStream)
+				}
 				return nil
 			}
 
 			if er != nil {
 				log.Error("服务端数据接收出错 %v", er)
+				if r.onDisConnected != nil {
+					r.onDisConnected(serverStream)
+				}
 				return er
 			}
 
 			if r.onMessage != nil {
-				r.onMessage(stream, req)
+				r.onMessage(serverStream, req)
 			} else {
 				log.Warn("onMessage is empty")
 			}
 		}
 	}
 
+	return nil
+}
+
+func (r RpcRouterServerStream) Stream() routersvr.Router_BindStreamServer {
+	return r.stream
+}
+
+func (r RpcRouterServerStream) Uuid() string {
+	return r.uuid
+}
+
+func (r RpcRouterServerStream) SendMessage(serviceId int32, uuid string, msg []byte) error {
+	er := r.stream.Send(&routersvr.ReponseMessage{ServiceId: serviceId, Uuid: uuid, Msg: msg})
+	if er != nil {
+		log.Error(er)
+		return er
+	}
 	return nil
 }

@@ -24,7 +24,7 @@ type RecvData struct {
 }
 
 var (
-	rpcRouterStream *rpcclient.RpcRouterStream
+	rpcRouterStream *rpcclient.RpcRouterStreamClient
 	rpcLoggerCli    *rpcclient.RpcLoggerClient
 
 	clients sync.Map
@@ -43,17 +43,16 @@ func Test() {
 	}()
 }
 
-func onRouterMessage(response *routersvr.ForwardMessage) {
+func onRouterMessage(response *routersvr.ReponseMessage) {
 	switch response.ServiceId {
 	case ggconstant.CRouterServiceId:
-
 		pro := protocol.RequestChat{}
 		if er := proto.Unmarshal(response.Msg, &pro); er != nil {
 			log.Println(er)
 			return
 		}
 
-		log.Printf("%+v\n", pro)
+		log.Printf(`{"uid":%s "input":%s}`, pro.Uid, pro.Msg)
 
 		v, ok := clients.Load(response.Uuid)
 		if !ok {
@@ -109,8 +108,8 @@ func main() {
 		var er error
 		var rdata RecvData
 		if er = json.Unmarshal(data, &rdata); er != nil {
-			log.Println("解析输入信息失败:", er)
-			er = s.CloseWithMsg([]byte("输入信息解析失败"))
+			log.Println(er)
+			er = s.CloseWithMsg([]byte(er.Error()))
 			if er != nil {
 				log.Println(er)
 			}
@@ -132,8 +131,8 @@ func main() {
 		}
 		uuid := v.(string)
 
-		if er = rpcRouterStream.ForwardMessage(uuid, pbData); er != nil {
-			er = s.CloseWithMsg([]byte("向gRPC服务端发送消息失败:" + er.Error()))
+		if er = rpcRouterStream.SendMessage(uuid, pbData); er != nil {
+			er = s.CloseWithMsg([]byte("路由转发消息失败" + er.Error()))
 			return
 		}
 	})
@@ -157,7 +156,7 @@ func main() {
 		log.Panic(er)
 	}
 
-	rpcRouterCli := &rpcclient.RpcRouterClient{ServiceId: ggconstant.CRouterServiceId, UUID: ggutilty.UUID()}
+	rpcRouterCli := &rpcclient.RpcRouterClient{ServiceId: ggconstant.CGatewayServiceId, UUID: ggutilty.UUID()}
 	if er = rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterServ.Host, global.Cfg.RouterServ.Port)); er != nil {
 		log.Panic(er)
 	}
@@ -169,5 +168,5 @@ func main() {
 
 	Test()
 
-	log.Panic(r.Run(":10010"))
+	log.Panic(r.Run(fmt.Sprintf(":%d", global.Cfg.Port)))
 }

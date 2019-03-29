@@ -17,7 +17,7 @@ var (
 	rpcRouterCli *rpcclient.RpcRouterClient
 	rpcDbCli     *rpcclient.RpcDbClient
 
-	rpcRouterStream *rpcclient.RpcRouterStream
+	rpcRouterStream *rpcclient.RpcRouterStreamClient
 	rpcDbStream     *rpcclient.RpcDbStream
 )
 
@@ -27,7 +27,7 @@ func Test() {
 		for {
 			var requestId int32 = 0
 			atomic.AddInt32(&requestId, 1)
-			er := rpcRouterStream.ForwardMessage("", []byte("gamesrv-1"))
+			er := rpcRouterStream.SendMessage("", []byte("gamesrv-1"))
 			if er != nil {
 				log.Println(er)
 				return
@@ -81,7 +81,7 @@ func main() {
 	}
 
 	var er error
-	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ForwardMessage) {
+	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ReponseMessage) {
 		switch response.ServiceId {
 		case 1:
 			log.Println(response)

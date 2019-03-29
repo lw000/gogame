@@ -16,13 +16,13 @@ type RpcRouterClient struct {
 	client    routersvr.RouterClient
 	status    int
 	m         sync.RWMutex
-	streams   []*RpcRouterStream
+	streams   []*RpcRouterStreamClient
 }
 
-type RpcRouterStream struct {
-	onMessage func(response *routersvr.ForwardMessage)
+type RpcRouterStreamClient struct {
+	onMessage func(*routersvr.ReponseMessage)
 	client    *RpcRouterClient
-	stream    routersvr.Router_ForwardingDataStreamClient
+	stream    routersvr.Router_BindStreamClient
 }
 
 func (r *RpcRouterClient) Status() int {
@@ -51,26 +51,6 @@ func (r *RpcRouterClient) Start(address string) error {
 	return nil
 }
 
-func (r *RpcRouterClient) RegisterService(protocols []*routersvr.RouterProtocol) error {
-	ctx := context.Background()
-	reply, er := r.client.RegisterService(ctx, &routersvr.RequestRegisterService{ServiceId: r.ServiceId, ServiceName: "platform", ServiceVersion: "1.0.1", Protocols: protocols})
-	if er != nil {
-		log.Error("did not connect:%v", er)
-		return er
-	}
-
-	if reply.Status != 1 {
-		log.Error(reply)
-	}
-
-	return nil
-}
-
-func (r *RpcRouterClient) ForwardingData(uuid string, msg []byte) (*routersvr.ForwardMessage, error) {
-	ctx := context.Background()
-	return r.client.ForwardingData(ctx, &routersvr.ForwardMessage{ServiceId: r.ServiceId, Uuid: uuid, Msg: msg})
-}
-
 func (r *RpcRouterClient) Stop() error {
 	var er error
 	for _, s := range r.streams {
@@ -86,10 +66,10 @@ func (r *RpcRouterClient) Stop() error {
 	return er
 }
 
-func (r *RpcRouterClient) CreateStream(onMessage func(response *routersvr.ForwardMessage)) (*RpcRouterStream, error) {
+func (r *RpcRouterClient) CreateStream(onMessage func(response *routersvr.ReponseMessage)) (*RpcRouterStreamClient, error) {
 	var er error
-	rpcStream := &RpcRouterStream{client: r, onMessage: onMessage}
-	rpcStream.stream, er = r.client.ForwardingDataStream(context.Background())
+	rpcStream := &RpcRouterStreamClient{client: r, onMessage: onMessage}
+	rpcStream.stream, er = r.client.BindStream(context.Background())
 	if er != nil {
 		log.Error(er)
 		return nil, er
@@ -101,21 +81,21 @@ func (r *RpcRouterClient) CreateStream(onMessage func(response *routersvr.Forwar
 	return rpcStream, nil
 }
 
-func (r *RpcRouterStream) ForwardMessage(uuid string, msg []byte) error {
-	if er := r.stream.Send(&routersvr.ForwardMessage{ServiceId: r.client.ServiceId, Uuid: uuid, Msg: msg}); er != nil {
+func (r *RpcRouterStreamClient) SendMessage(uuid string, msg []byte) error {
+	if er := r.stream.Send(&routersvr.RequestMessage{ServiceId: r.client.ServiceId, Uuid: uuid, Msg: msg}); er != nil {
 		log.Error(er)
 		return er
 	}
 	return nil
 }
 
-func (r *RpcRouterStream) CloseSend() error {
+func (r *RpcRouterStreamClient) CloseSend() error {
 	return r.stream.CloseSend()
 }
 
-func (r *RpcRouterStream) run() {
+func (r *RpcRouterStreamClient) run() {
 	var er error
-	var resp *routersvr.ForwardMessage
+	var resp *routersvr.ReponseMessage
 	for {
 		resp, er = r.stream.Recv()
 		if er == io.EOF {

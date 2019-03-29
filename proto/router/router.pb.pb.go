@@ -22,268 +22,171 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-// ForwardMessage 转发数据格式
-type ForwardMessage struct {
+// Message 数据格式
+type RequestMessage struct {
 	ServiceId            int32    `protobuf:"varint,1,opt,name=serviceId,proto3" json:"serviceId,omitempty"`
-	Uuid                 string   `protobuf:"bytes,2,opt,name=uuid,proto3" json:"uuid,omitempty"`
-	Msg                  []byte   `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
+	ServiceName          string   `protobuf:"bytes,2,opt,name=serviceName,proto3" json:"serviceName,omitempty"`
+	ServiceVersion       string   `protobuf:"bytes,3,opt,name=serviceVersion,proto3" json:"serviceVersion,omitempty"`
+	Uuid                 string   `protobuf:"bytes,4,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	Msg                  []byte   `protobuf:"bytes,5,opt,name=msg,proto3" json:"msg,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ForwardMessage) Reset()         { *m = ForwardMessage{} }
-func (m *ForwardMessage) String() string { return proto.CompactTextString(m) }
-func (*ForwardMessage) ProtoMessage()    {}
-func (*ForwardMessage) Descriptor() ([]byte, []int) {
+func (m *RequestMessage) Reset()         { *m = RequestMessage{} }
+func (m *RequestMessage) String() string { return proto.CompactTextString(m) }
+func (*RequestMessage) ProtoMessage()    {}
+func (*RequestMessage) Descriptor() ([]byte, []int) {
 	return fileDescriptor_af85e721a6243de1, []int{0}
 }
 
-func (m *ForwardMessage) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ForwardMessage.Unmarshal(m, b)
+func (m *RequestMessage) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RequestMessage.Unmarshal(m, b)
 }
-func (m *ForwardMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ForwardMessage.Marshal(b, m, deterministic)
+func (m *RequestMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RequestMessage.Marshal(b, m, deterministic)
 }
-func (m *ForwardMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ForwardMessage.Merge(m, src)
+func (m *RequestMessage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RequestMessage.Merge(m, src)
 }
-func (m *ForwardMessage) XXX_Size() int {
-	return xxx_messageInfo_ForwardMessage.Size(m)
+func (m *RequestMessage) XXX_Size() int {
+	return xxx_messageInfo_RequestMessage.Size(m)
 }
-func (m *ForwardMessage) XXX_DiscardUnknown() {
-	xxx_messageInfo_ForwardMessage.DiscardUnknown(m)
+func (m *RequestMessage) XXX_DiscardUnknown() {
+	xxx_messageInfo_RequestMessage.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ForwardMessage proto.InternalMessageInfo
+var xxx_messageInfo_RequestMessage proto.InternalMessageInfo
 
-func (m *ForwardMessage) GetServiceId() int32 {
+func (m *RequestMessage) GetServiceId() int32 {
 	if m != nil {
 		return m.ServiceId
 	}
 	return 0
 }
 
-func (m *ForwardMessage) GetUuid() string {
-	if m != nil {
-		return m.Uuid
-	}
-	return ""
-}
-
-func (m *ForwardMessage) GetMsg() []byte {
-	if m != nil {
-		return m.Msg
-	}
-	return nil
-}
-
-type RequestRegisterService struct {
-	ServiceId            int32             `protobuf:"varint,1,opt,name=serviceId,proto3" json:"serviceId,omitempty"`
-	ServiceName          string            `protobuf:"bytes,2,opt,name=serviceName,proto3" json:"serviceName,omitempty"`
-	ServiceVersion       string            `protobuf:"bytes,3,opt,name=serviceVersion,proto3" json:"serviceVersion,omitempty"`
-	SrviceProtocol       string            `protobuf:"bytes,4,opt,name=srviceProtocol,proto3" json:"srviceProtocol,omitempty"`
-	Protocols            []*RouterProtocol `protobuf:"bytes,5,rep,name=protocols,proto3" json:"protocols,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
-	XXX_unrecognized     []byte            `json:"-"`
-	XXX_sizecache        int32             `json:"-"`
-}
-
-func (m *RequestRegisterService) Reset()         { *m = RequestRegisterService{} }
-func (m *RequestRegisterService) String() string { return proto.CompactTextString(m) }
-func (*RequestRegisterService) ProtoMessage()    {}
-func (*RequestRegisterService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_af85e721a6243de1, []int{1}
-}
-
-func (m *RequestRegisterService) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RequestRegisterService.Unmarshal(m, b)
-}
-func (m *RequestRegisterService) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RequestRegisterService.Marshal(b, m, deterministic)
-}
-func (m *RequestRegisterService) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RequestRegisterService.Merge(m, src)
-}
-func (m *RequestRegisterService) XXX_Size() int {
-	return xxx_messageInfo_RequestRegisterService.Size(m)
-}
-func (m *RequestRegisterService) XXX_DiscardUnknown() {
-	xxx_messageInfo_RequestRegisterService.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_RequestRegisterService proto.InternalMessageInfo
-
-func (m *RequestRegisterService) GetServiceId() int32 {
-	if m != nil {
-		return m.ServiceId
-	}
-	return 0
-}
-
-func (m *RequestRegisterService) GetServiceName() string {
+func (m *RequestMessage) GetServiceName() string {
 	if m != nil {
 		return m.ServiceName
 	}
 	return ""
 }
 
-func (m *RequestRegisterService) GetServiceVersion() string {
+func (m *RequestMessage) GetServiceVersion() string {
 	if m != nil {
 		return m.ServiceVersion
 	}
 	return ""
 }
 
-func (m *RequestRegisterService) GetSrviceProtocol() string {
-	if m != nil {
-		return m.SrviceProtocol
-	}
-	return ""
-}
-
-func (m *RequestRegisterService) GetProtocols() []*RouterProtocol {
-	if m != nil {
-		return m.Protocols
-	}
-	return nil
-}
-
-type ResponseRegisterService struct {
-	Status               int32    `protobuf:"varint,1,opt,name=status,proto3" json:"status,omitempty"`
-	Uuid                 string   `protobuf:"bytes,2,opt,name=uuid,proto3" json:"uuid,omitempty"`
-	Msg                  string   `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *ResponseRegisterService) Reset()         { *m = ResponseRegisterService{} }
-func (m *ResponseRegisterService) String() string { return proto.CompactTextString(m) }
-func (*ResponseRegisterService) ProtoMessage()    {}
-func (*ResponseRegisterService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_af85e721a6243de1, []int{2}
-}
-
-func (m *ResponseRegisterService) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ResponseRegisterService.Unmarshal(m, b)
-}
-func (m *ResponseRegisterService) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ResponseRegisterService.Marshal(b, m, deterministic)
-}
-func (m *ResponseRegisterService) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ResponseRegisterService.Merge(m, src)
-}
-func (m *ResponseRegisterService) XXX_Size() int {
-	return xxx_messageInfo_ResponseRegisterService.Size(m)
-}
-func (m *ResponseRegisterService) XXX_DiscardUnknown() {
-	xxx_messageInfo_ResponseRegisterService.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ResponseRegisterService proto.InternalMessageInfo
-
-func (m *ResponseRegisterService) GetStatus() int32 {
-	if m != nil {
-		return m.Status
-	}
-	return 0
-}
-
-func (m *ResponseRegisterService) GetUuid() string {
+func (m *RequestMessage) GetUuid() string {
 	if m != nil {
 		return m.Uuid
 	}
 	return ""
 }
 
-func (m *ResponseRegisterService) GetMsg() string {
+func (m *RequestMessage) GetMsg() []byte {
 	if m != nil {
 		return m.Msg
 	}
-	return ""
+	return nil
 }
 
-type RouterProtocol struct {
-	MainId               int32    `protobuf:"varint,2,opt,name=mainId,proto3" json:"mainId,omitempty"`
-	SubId                int32    `protobuf:"varint,3,opt,name=subId,proto3" json:"subId,omitempty"`
+type ReponseMessage struct {
+	ServiceId            int32    `protobuf:"varint,1,opt,name=serviceId,proto3" json:"serviceId,omitempty"`
+	ServiceName          string   `protobuf:"bytes,2,opt,name=serviceName,proto3" json:"serviceName,omitempty"`
+	ServiceVersion       string   `protobuf:"bytes,3,opt,name=serviceVersion,proto3" json:"serviceVersion,omitempty"`
+	Uuid                 string   `protobuf:"bytes,4,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	Msg                  []byte   `protobuf:"bytes,5,opt,name=msg,proto3" json:"msg,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RouterProtocol) Reset()         { *m = RouterProtocol{} }
-func (m *RouterProtocol) String() string { return proto.CompactTextString(m) }
-func (*RouterProtocol) ProtoMessage()    {}
-func (*RouterProtocol) Descriptor() ([]byte, []int) {
-	return fileDescriptor_af85e721a6243de1, []int{3}
+func (m *ReponseMessage) Reset()         { *m = ReponseMessage{} }
+func (m *ReponseMessage) String() string { return proto.CompactTextString(m) }
+func (*ReponseMessage) ProtoMessage()    {}
+func (*ReponseMessage) Descriptor() ([]byte, []int) {
+	return fileDescriptor_af85e721a6243de1, []int{1}
 }
 
-func (m *RouterProtocol) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RouterProtocol.Unmarshal(m, b)
+func (m *ReponseMessage) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ReponseMessage.Unmarshal(m, b)
 }
-func (m *RouterProtocol) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RouterProtocol.Marshal(b, m, deterministic)
+func (m *ReponseMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ReponseMessage.Marshal(b, m, deterministic)
 }
-func (m *RouterProtocol) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RouterProtocol.Merge(m, src)
+func (m *ReponseMessage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReponseMessage.Merge(m, src)
 }
-func (m *RouterProtocol) XXX_Size() int {
-	return xxx_messageInfo_RouterProtocol.Size(m)
+func (m *ReponseMessage) XXX_Size() int {
+	return xxx_messageInfo_ReponseMessage.Size(m)
 }
-func (m *RouterProtocol) XXX_DiscardUnknown() {
-	xxx_messageInfo_RouterProtocol.DiscardUnknown(m)
+func (m *ReponseMessage) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReponseMessage.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_RouterProtocol proto.InternalMessageInfo
+var xxx_messageInfo_ReponseMessage proto.InternalMessageInfo
 
-func (m *RouterProtocol) GetMainId() int32 {
+func (m *ReponseMessage) GetServiceId() int32 {
 	if m != nil {
-		return m.MainId
+		return m.ServiceId
 	}
 	return 0
 }
 
-func (m *RouterProtocol) GetSubId() int32 {
+func (m *ReponseMessage) GetServiceName() string {
 	if m != nil {
-		return m.SubId
+		return m.ServiceName
 	}
-	return 0
+	return ""
+}
+
+func (m *ReponseMessage) GetServiceVersion() string {
+	if m != nil {
+		return m.ServiceVersion
+	}
+	return ""
+}
+
+func (m *ReponseMessage) GetUuid() string {
+	if m != nil {
+		return m.Uuid
+	}
+	return ""
+}
+
+func (m *ReponseMessage) GetMsg() []byte {
+	if m != nil {
+		return m.Msg
+	}
+	return nil
 }
 
 func init() {
-	proto.RegisterType((*ForwardMessage)(nil), "routersvr.ForwardMessage")
-	proto.RegisterType((*RequestRegisterService)(nil), "routersvr.RequestRegisterService")
-	proto.RegisterType((*ResponseRegisterService)(nil), "routersvr.ResponseRegisterService")
-	proto.RegisterType((*RouterProtocol)(nil), "routersvr.RouterProtocol")
+	proto.RegisterType((*RequestMessage)(nil), "routersvr.RequestMessage")
+	proto.RegisterType((*ReponseMessage)(nil), "routersvr.ReponseMessage")
 }
 
 func init() { proto.RegisterFile("router.pb", fileDescriptor_af85e721a6243de1) }
 
 var fileDescriptor_af85e721a6243de1 = []byte{
-	// 342 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x52, 0x4f, 0x4b, 0xfb, 0x40,
-	0x10, 0xed, 0xb6, 0x4d, 0x21, 0xd3, 0x1f, 0xfd, 0xc9, 0x52, 0x6a, 0x2c, 0x1e, 0x62, 0x0e, 0x92,
-	0x53, 0x91, 0x7a, 0xf0, 0xe6, 0x49, 0xc4, 0x1e, 0x14, 0xd9, 0x8a, 0x82, 0xb7, 0x6d, 0x33, 0x84,
-	0x80, 0xc9, 0xd6, 0x9d, 0x4d, 0xbd, 0xfb, 0x4d, 0xfd, 0x26, 0xd2, 0xcd, 0xda, 0x36, 0xa5, 0x52,
-	0xf0, 0xf6, 0xde, 0xcb, 0xdb, 0x37, 0x99, 0x3f, 0xe0, 0x6b, 0x55, 0x1a, 0xd4, 0xa3, 0xc5, 0x8c,
-	0x3b, 0x48, 0x4b, 0x1d, 0x3d, 0x41, 0xef, 0x56, 0xe9, 0x0f, 0xa9, 0x93, 0x7b, 0x24, 0x92, 0x29,
-	0xf2, 0x53, 0xf0, 0x09, 0xf5, 0x32, 0x9b, 0xe3, 0x24, 0x09, 0x58, 0xc8, 0x62, 0x4f, 0x6c, 0x04,
-	0xce, 0xa1, 0x5d, 0x96, 0x59, 0x12, 0x34, 0x43, 0x16, 0xfb, 0xc2, 0x62, 0x7e, 0x04, 0xad, 0x9c,
-	0xd2, 0xa0, 0x15, 0xb2, 0xf8, 0x9f, 0x58, 0xc1, 0xe8, 0x8b, 0xc1, 0x40, 0xe0, 0x7b, 0x89, 0x64,
-	0x04, 0xa6, 0x19, 0x19, 0xd4, 0xd3, 0x2a, 0xe2, 0x40, 0x7c, 0x08, 0x5d, 0x47, 0x1e, 0x64, 0x8e,
-	0xae, 0xca, 0xb6, 0xc4, 0xcf, 0xa1, 0xe7, 0xe8, 0x33, 0x6a, 0xca, 0x54, 0x61, 0xeb, 0xfa, 0x62,
-	0x47, 0xb5, 0x3e, 0x2b, 0x3c, 0x6a, 0x65, 0xd4, 0x5c, 0xbd, 0x05, 0x6d, 0xe7, 0xab, 0xa9, 0xfc,
-	0x0a, 0xfc, 0x85, 0xc3, 0x14, 0x78, 0x61, 0x2b, 0xee, 0x8e, 0x4f, 0x46, 0xeb, 0xf9, 0x8c, 0x84,
-	0x45, 0x3f, 0x6e, 0xb1, 0xf1, 0x46, 0x2f, 0x70, 0x2c, 0x90, 0x16, 0xaa, 0x20, 0xdc, 0xed, 0x71,
-	0x00, 0x1d, 0x32, 0xd2, 0x94, 0xe4, 0x1a, 0x74, 0xec, 0xd0, 0xf0, 0xfc, 0x6a, 0x78, 0xd7, 0xd0,
-	0xab, 0x57, 0x5d, 0xe5, 0xe5, 0x32, 0x2b, 0x26, 0xd5, 0x4b, 0x4f, 0x38, 0xc6, 0xfb, 0xe0, 0x51,
-	0x39, 0x9b, 0x24, 0xf6, 0xb5, 0x27, 0x2a, 0x32, 0xfe, 0x6c, 0x42, 0xa7, 0x0a, 0xe0, 0xaf, 0xf0,
-	0x7f, 0xf7, 0xdf, 0xce, 0xb6, 0x9b, 0xdb, 0xbb, 0xa2, 0x61, 0x54, 0xb3, 0xec, 0x6d, 0x31, 0x6a,
-	0x70, 0x01, 0x7d, 0x77, 0x39, 0x59, 0x91, 0xde, 0x48, 0x23, 0xa7, 0x46, 0xa3, 0xcc, 0xf9, 0xf6,
-	0xf4, 0xea, 0xa7, 0x35, 0xfc, 0xfd, 0x53, 0xd4, 0x88, 0xd9, 0x05, 0xe3, 0x77, 0xeb, 0x6b, 0x74,
-	0x99, 0x7f, 0x4d, 0x9b, 0x75, 0xec, 0xa2, 0x2e, 0xbf, 0x03, 0x00, 0x00, 0xff, 0xff, 0xc4, 0xf8,
-	0xb5, 0xe0, 0xf6, 0x02, 0x00, 0x00,
+	// 207 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x90, 0xbf, 0x4a, 0xc7, 0x30,
+	0x10, 0xc7, 0x8d, 0xbf, 0x5f, 0x0b, 0x3d, 0xa5, 0xc8, 0x4d, 0x51, 0x1c, 0x42, 0x07, 0xc9, 0x54,
+	0x44, 0xdf, 0xc0, 0x49, 0x07, 0x1d, 0x22, 0xb8, 0xb7, 0xf6, 0x28, 0x19, 0xda, 0xd4, 0x5c, 0xd2,
+	0xc7, 0xf1, 0x59, 0xc5, 0x10, 0xb4, 0xf5, 0x09, 0xdc, 0xbe, 0x7f, 0x6e, 0xf8, 0xde, 0x07, 0x2a,
+	0xef, 0x62, 0x20, 0xdf, 0x2e, 0x3d, 0x66, 0xc9, 0xab, 0x6f, 0x3e, 0x05, 0xd4, 0x86, 0x3e, 0x22,
+	0x71, 0x78, 0x26, 0xe6, 0x6e, 0x24, 0xbc, 0x86, 0x8a, 0xc9, 0xaf, 0xf6, 0x9d, 0x9e, 0x06, 0x29,
+	0x94, 0xd0, 0x85, 0xf9, 0x0d, 0x50, 0xc1, 0x59, 0x36, 0x2f, 0xdd, 0x44, 0xf2, 0x54, 0x09, 0x5d,
+	0x99, 0x6d, 0x84, 0x37, 0x50, 0x67, 0xfb, 0x46, 0x9e, 0xad, 0x9b, 0xe5, 0x21, 0x1d, 0xfd, 0x49,
+	0x11, 0xe1, 0x18, 0xa3, 0x1d, 0xe4, 0x31, 0xb5, 0x49, 0xe3, 0x05, 0x1c, 0x26, 0x1e, 0x65, 0xa1,
+	0x84, 0x3e, 0x37, 0xdf, 0x32, 0x0f, 0x5c, 0xdc, 0xcc, 0xf4, 0x2f, 0x07, 0xde, 0x19, 0x28, 0x4d,
+	0xc2, 0x89, 0x8f, 0x00, 0x0f, 0x76, 0x1e, 0x5e, 0x83, 0xa7, 0x6e, 0xc2, 0xcb, 0xf6, 0x87, 0x72,
+	0xbb, 0x27, 0x7c, 0xb5, 0xaf, 0xb6, 0xbf, 0x35, 0x27, 0x5a, 0xdc, 0x8a, 0xbe, 0x5c, 0xbc, 0x0b,
+	0xee, 0xfe, 0x2b, 0x00, 0x00, 0xff, 0xff, 0x26, 0x6f, 0xde, 0xf9, 0xb4, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -298,9 +201,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type RouterClient interface {
-	RegisterService(ctx context.Context, in *RequestRegisterService, opts ...grpc.CallOption) (*ResponseRegisterService, error)
-	ForwardingDataStream(ctx context.Context, opts ...grpc.CallOption) (Router_ForwardingDataStreamClient, error)
-	ForwardingData(ctx context.Context, in *ForwardMessage, opts ...grpc.CallOption) (*ForwardMessage, error)
+	BindStream(ctx context.Context, opts ...grpc.CallOption) (Router_BindStreamClient, error)
 }
 
 type routerClient struct {
@@ -311,145 +212,80 @@ func NewRouterClient(cc *grpc.ClientConn) RouterClient {
 	return &routerClient{cc}
 }
 
-func (c *routerClient) RegisterService(ctx context.Context, in *RequestRegisterService, opts ...grpc.CallOption) (*ResponseRegisterService, error) {
-	out := new(ResponseRegisterService)
-	err := c.cc.Invoke(ctx, "/routersvr.Router/RegisterService", in, out, opts...)
+func (c *routerClient) BindStream(ctx context.Context, opts ...grpc.CallOption) (Router_BindStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_Router_serviceDesc.Streams[0], "/routersvr.Router/BindStream", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
-}
-
-func (c *routerClient) ForwardingDataStream(ctx context.Context, opts ...grpc.CallOption) (Router_ForwardingDataStreamClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Router_serviceDesc.Streams[0], "/routersvr.Router/ForwardingDataStream", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &routerForwardingDataStreamClient{stream}
+	x := &routerBindStreamClient{stream}
 	return x, nil
 }
 
-type Router_ForwardingDataStreamClient interface {
-	Send(*ForwardMessage) error
-	Recv() (*ForwardMessage, error)
+type Router_BindStreamClient interface {
+	Send(*RequestMessage) error
+	Recv() (*ReponseMessage, error)
 	grpc.ClientStream
 }
 
-type routerForwardingDataStreamClient struct {
+type routerBindStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *routerForwardingDataStreamClient) Send(m *ForwardMessage) error {
+func (x *routerBindStreamClient) Send(m *RequestMessage) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *routerForwardingDataStreamClient) Recv() (*ForwardMessage, error) {
-	m := new(ForwardMessage)
+func (x *routerBindStreamClient) Recv() (*ReponseMessage, error) {
+	m := new(ReponseMessage)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *routerClient) ForwardingData(ctx context.Context, in *ForwardMessage, opts ...grpc.CallOption) (*ForwardMessage, error) {
-	out := new(ForwardMessage)
-	err := c.cc.Invoke(ctx, "/routersvr.Router/ForwardingData", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // RouterServer is the server API for Router service.
 type RouterServer interface {
-	RegisterService(context.Context, *RequestRegisterService) (*ResponseRegisterService, error)
-	ForwardingDataStream(Router_ForwardingDataStreamServer) error
-	ForwardingData(context.Context, *ForwardMessage) (*ForwardMessage, error)
+	BindStream(Router_BindStreamServer) error
 }
 
 func RegisterRouterServer(s *grpc.Server, srv RouterServer) {
 	s.RegisterService(&_Router_serviceDesc, srv)
 }
 
-func _Router_RegisterService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RequestRegisterService)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RouterServer).RegisterService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/routersvr.Router/RegisterService",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RouterServer).RegisterService(ctx, req.(*RequestRegisterService))
-	}
-	return interceptor(ctx, in, info, handler)
+func _Router_BindStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(RouterServer).BindStream(&routerBindStreamServer{stream})
 }
 
-func _Router_ForwardingDataStream_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(RouterServer).ForwardingDataStream(&routerForwardingDataStreamServer{stream})
-}
-
-type Router_ForwardingDataStreamServer interface {
-	Send(*ForwardMessage) error
-	Recv() (*ForwardMessage, error)
+type Router_BindStreamServer interface {
+	Send(*ReponseMessage) error
+	Recv() (*RequestMessage, error)
 	grpc.ServerStream
 }
 
-type routerForwardingDataStreamServer struct {
+type routerBindStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *routerForwardingDataStreamServer) Send(m *ForwardMessage) error {
+func (x *routerBindStreamServer) Send(m *ReponseMessage) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *routerForwardingDataStreamServer) Recv() (*ForwardMessage, error) {
-	m := new(ForwardMessage)
+func (x *routerBindStreamServer) Recv() (*RequestMessage, error) {
+	m := new(RequestMessage)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func _Router_ForwardingData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ForwardMessage)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RouterServer).ForwardingData(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/routersvr.Router/ForwardingData",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RouterServer).ForwardingData(ctx, req.(*ForwardMessage))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 var _Router_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "routersvr.Router",
 	HandlerType: (*RouterServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "RegisterService",
-			Handler:    _Router_RegisterService_Handler,
-		},
-		{
-			MethodName: "ForwardingData",
-			Handler:    _Router_ForwardingData_Handler,
-		},
-	},
+	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "ForwardingDataStream",
-			Handler:       _Router_ForwardingDataStream_Handler,
+			StreamName:    "BindStream",
+			Handler:       _Router_BindStream_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},

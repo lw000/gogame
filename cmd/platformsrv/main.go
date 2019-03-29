@@ -4,7 +4,6 @@ import (
 	"demo/gogame/cmd/platformsrv/global"
 	"demo/gogame/cmd/platformsrv/platform"
 	"demo/gogame/common/sys"
-	"demo/gogame/constant"
 	"demo/gogame/proto/db"
 	"demo/gogame/proto/router"
 	"demo/gogame/rpc/client"
@@ -21,7 +20,7 @@ var (
 	rpcRouterCli *rpcclient.RpcRouterClient
 	rpcDbCli     *rpcclient.RpcDbClient
 
-	rpcRouterStream *rpcclient.RpcRouterStream
+	rpcRouterStream *rpcclient.RpcRouterStreamClient
 	rpcDbStream     *rpcclient.RpcDbStream
 )
 
@@ -37,12 +36,12 @@ func Test() {
 		}
 	}()
 
-	//路由数据发送测试
+	////路由数据发送测试
 	//go func() {
 	//	for {
 	//		var requestId int32 = 0
 	//		atomic.AddInt32(&requestId, 1)
-	//		er := rpcRouterStream.SendMessage(ggconstant.CPlatformMainId, 1, "", "platform-1")
+	//		er := rpcRouterStream.SendMessage("", []byte("platform-1"))
 	//		if er != nil {
 	//			log.Println(er)
 	//			return
@@ -91,24 +90,13 @@ func main() {
 		log.Panic(er)
 	}
 
-	protocols := []*routersvr.RouterProtocol{
-		&routersvr.RouterProtocol{MainId: ggconstant.CPlatformMainId, SubId: 100},
-		&routersvr.RouterProtocol{MainId: ggconstant.CPlatformMainId, SubId: 101},
-		&routersvr.RouterProtocol{MainId: ggconstant.CPlatformMainId, SubId: 102},
-		&routersvr.RouterProtocol{MainId: ggconstant.CPlatformMainId, SubId: 103},
-		&routersvr.RouterProtocol{MainId: ggconstant.CPlatformMainId, SubId: 104},
-	}
-	if er := rpcRouterCli.RegisterService(protocols); er != nil {
-		log.Panic(er)
-	}
-
 	rpcDbCli = &rpcclient.RpcDbClient{}
 	if er := rpcDbCli.Start(fmt.Sprintf("%s:%d", global.Cfg.DBServ.Host, global.Cfg.DBServ.Port)); er != nil {
 		log.Panic(er)
 	}
 
 	var er error
-	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ForwardMessage) {
+	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ReponseMessage) {
 		switch response.ServiceId {
 		case 1:
 			log.Println(response)

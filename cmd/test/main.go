@@ -1,13 +1,13 @@
 package main
 
 import (
+	"demo/gogame/cmd/test/config"
 	"encoding/json"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/url"
 	"strconv"
 	"strings"
-	"syncthing/lib/rand"
 	"time"
 )
 
@@ -15,6 +15,10 @@ type FastWsClient struct {
 	uid  int
 	conn *websocket.Conn
 }
+
+var (
+	cfg *config.JsonConfig
+)
 
 func login(uid int) ([]byte, error) {
 	m := make(map[string]string)
@@ -47,12 +51,12 @@ func chat(uid int) ([]byte, error) {
 	return data, nil
 }
 
-func (f *FastWsClient) Create() error {
-	u := url.URL{Scheme: "ws", Host: "127.0.0.1:10010", Path: "ws"}
+func (f *FastWsClient) Create(host, path string) error {
+	u := url.URL{Scheme: "ws", Host: host, Path: path}
 	var er error
 	f.conn, _, er = websocket.DefaultDialer.Dial(u.String(), nil)
 	if er != nil {
-		log.Panic(er)
+		//log.Println(er)
 		return er
 	}
 	log.Printf("连接成功[uid=%d]", f.uid)
@@ -60,9 +64,8 @@ func (f *FastWsClient) Create() error {
 }
 
 func (f *FastWsClient) SendMessage() {
-	tickHeartBeat := time.NewTicker(time.Second * time.Duration(30))
-	t := rand.Intn(5) + 1
-	tickSend := time.NewTicker(time.Microsecond * time.Duration(t))
+	tickHeartBeat := time.NewTicker(time.Second * time.Duration(45))
+	tickSend := time.NewTicker(time.Millisecond * time.Duration(cfg.Millisecond))
 	for {
 		select {
 		case <-tickHeartBeat.C:
@@ -102,16 +105,24 @@ func (f *FastWsClient) Run() {
 }
 
 func main() {
-	for i := 10000; i < 10100; i++ {
+	var er error
+	cfg, er = config.LoadJsonConfig("./conf/conf.json")
+	if er != nil {
+		log.Panic(er)
+	}
+
+	for i := 1; i <= cfg.Count; i++ {
 		ws := FastWsClient{uid: i}
-		er := ws.Create()
+		er = ws.Create(cfg.Host, cfg.Path)
 		if er != nil {
 			log.Println(er)
 		} else {
-			go ws.SendMessage()
-			go ws.Run()
+			if cfg.Send {
+				go ws.SendMessage()
+				go ws.Run()
+			}
 		}
-		time.Sleep(time.Microsecond * time.Duration(10))
+		time.Sleep(time.Microsecond * time.Duration(20))
 	}
 	select {}
 }
