@@ -2,7 +2,6 @@ package main
 
 import (
 	"demo/gogame/cmd/gateway/global"
-	"demo/gogame/constant"
 	"demo/gogame/pcl"
 	"demo/gogame/proto/router"
 	"demo/gogame/rpc/client"
@@ -14,13 +13,17 @@ import (
 	"time"
 )
 
+type ClientSession struct {
+	ServiceId  int32
+	Clientuuid string
+	protocols  sync.Map
+}
+
 var (
 	rpcLoggerCli  *rpcclient.RpcLoggerClient
 	rpcRouterServ *rpcservice.RpcRouterServer
 
-	services sync.Map
-
-	protocols sync.Map
+	clientStreams sync.Map
 )
 
 func Test() {
@@ -46,20 +49,19 @@ func main() {
 		log.Panic(er)
 	}
 
-	rpcRouterServ = &rpcservice.RpcRouterServer{ServiceId: ggconstant.CRouterServiceId}
+	rpcRouterServ = &rpcservice.RpcRouterServer{}
 	rpcRouterServ.HandleConnect(func(stream *rpcservice.RpcRouterServerStream) {
 		log.Println("子服务器连接", stream)
 	})
 
 	rpcRouterServ.HandleDisConnected(func(stream *rpcservice.RpcRouterServerStream) {
+		clientStreams.Delete(stream.ServiceId)
 		log.Println("子服务器断开", stream)
-		services.Delete(stream.ClientUuid())
 	})
 
 	rpcRouterServ.HandleMessage(func(stream *rpcservice.RpcRouterServerStream, req *routersvr.RequestMessage) {
 		switch req.MsgType {
-		case 0:
-			//注册协议
+		case 0: //注册协议
 			pcls, er := ggpcl.DecodePcl(req.Msg)
 			if er != nil {
 				log.Println(er)
@@ -69,17 +71,19 @@ func main() {
 				}
 				return
 			}
-			log.Printf("%+v", pcls)
-			protocols.Store(req.ServiceId, pcls)
 
-			services.Store(stream.ClientUuid(), stream)
+			log.Printf("%+v", pcls)
+
+			clientConfig := ClientSession{ServiceId: req.ServiceId, Clientuuid: stream.ClientUuid()}
+			clientConfig.protocols.Store(req.ServiceVersion, pcls)
+			clientStreams.Store(req.ServiceId, clientConfig)
 
 			er = stream.SendMessage(req.ServiceId, req.MsgType, req.Uuid, []byte("1"))
 			if er != nil {
 				log.Println(er)
 			}
 		case 1: //转发消息
-			v1, ok := services.Load(req.Cuuid)
+			v1, ok := clientStreams.Load(req.Cuuid)
 			if !ok {
 				log.Println("没有找到路由信息")
 				return

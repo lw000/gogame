@@ -10,10 +10,11 @@ service Router {
 // Message 数据格式
 message RequestMessage {
     int32 serviceId = 1;
-    string cuuid = 2;
-    string uuid = 3;
-    int32 msgType = 4;
-    bytes msg = 5;
+    string serviceVersion = 2;
+    string cuuid = 3;
+    string uuid = 4;
+    int32 msgType = 5;
+    bytes msg = 6;
 }
 
 message ReponseMessage {

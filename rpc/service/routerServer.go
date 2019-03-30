@@ -8,13 +8,13 @@ import (
 )
 
 type RpcRouterServer struct {
-	ServiceId      int32
 	onMessage      func(s *RpcRouterServerStream, req *routersvr.RequestMessage)
 	onConnected    func(s *RpcRouterServerStream)
 	onDisConnected func(s *RpcRouterServerStream)
 }
 
 type RpcRouterServerStream struct {
+	ServiceId  int32
 	clientUuid string
 	stream     routersvr.Router_BindStreamServer
 }
@@ -72,10 +72,6 @@ func (r *RpcRouterServer) BindStream(stream routersvr.Router_BindStreamServer) e
 	}
 
 	return nil
-}
-
-func (r RpcRouterServerStream) Stream() routersvr.Router_BindStreamServer {
-	return r.stream
 }
 
 func (r RpcRouterServerStream) ClientUuid() string {
