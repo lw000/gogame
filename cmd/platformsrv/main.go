@@ -4,6 +4,7 @@ import (
 	"demo/gogame/cmd/platformsrv/global"
 	"demo/gogame/cmd/platformsrv/platform"
 	"demo/gogame/common/sys"
+	"demo/gogame/pcl"
 	"demo/gogame/proto/db"
 	"demo/gogame/proto/router"
 	"demo/gogame/rpc/client"
@@ -97,15 +98,19 @@ func main() {
 
 	var er error
 	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ReponseMessage) {
-		switch response.ServiceId {
-		case 1:
-			log.Println(response)
-		case 2:
-			log.Println(response)
-		}
+		log.Println(response)
 	})
 	if er != nil {
 		log.Panic(er)
+	}
+
+	{
+		var data []byte
+		data, er = ggpcl.LoadPcl("./conf/pcl.json")
+		er = rpcRouterStream.RegisterService(data)
+		if er != nil {
+			log.Panic(er)
+		}
 	}
 
 	rpcDbStream, er = rpcDbCli.CreateStream(func(response *dbsvr.Response) {

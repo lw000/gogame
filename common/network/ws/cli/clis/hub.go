@@ -1,12 +1,12 @@
 package ggclis
 
 import (
+	"demo/gogame/common/network/ws"
 	"errors"
 	"sync"
-	"tuyue/tuyue_common/network/ws"
 )
 
-type HandlerFunc func(pk *tyws.Packet)
+type HandlerFunc func(pk *ggwspk.Packet)
 
 type Key struct {
 	mid uint16
@@ -50,7 +50,7 @@ func (h *Hub) DispatchMessage(message []byte) error {
 		return errors.New("message is empty")
 	}
 
-	pk, err := tyws.NewPacketWithData(message)
+	pk, err := ggwspk.NewPacketWithData(message)
 	if err != nil {
 		return err
 	}

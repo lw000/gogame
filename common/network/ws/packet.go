@@ -5,8 +5,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"sync"
-
 	"github.com/golang/protobuf/proto"
 )
 
@@ -19,15 +17,16 @@ type Packet struct {
 	data      []byte
 }
 
-var (
-	pool *sync.Pool
-)
+//
+//var (
+//	pool *sync.Pool
+//)
 
-func init() {
-	pool = &sync.Pool{New: func() interface{} {
-		return &Packet{}
-	}}
-}
+//func init() {
+//	pool = &sync.Pool{New: func() interface{} {
+//		return &Packet{}
+//	}}
+//}
 
 func NewPacket(mid, sid uint16, requestId uint32) *Packet {
 	p := &Packet{

@@ -2,13 +2,13 @@ package ggclic
 
 import (
 	"container/list"
+	"demo/gogame/common/network/ws"
+	"demo/gogame/common/utilty"
 	"errors"
 	"fmt"
 	log "github.com/alecthomas/log4go"
 	"sync"
 	"time"
-	"tuyue/tuyue_common/network/ws"
-	"tuyue/tuyue_common/utilty"
 )
 
 type HandlerFunc func(buf []byte)
@@ -69,7 +69,7 @@ func (h *Handler) AddSyncHandler(f HandlerFunc) (receiver <-chan interface{}, re
 	h.m.Lock()
 	defer h.m.Unlock()
 
-	requestId = tyutilty.HashCode(tyutilty.UUID())
+	requestId = ggutilty.HashCode(ggutilty.UUID())
 	var hv *handlerEvent
 	hv = &handlerEvent{f: f, requestId: requestId, requestTime: time.Now().Unix(), receiver: make(chan interface{}, 1)}
 	h.ls.PushBack(hv)
@@ -86,7 +86,7 @@ func (h *Handler) AddAsyncHandler(f HandlerFunc) (requestId uint32) {
 	defer h.m.Unlock()
 
 	var ev *handlerEvent
-	requestId = tyutilty.HashCode(tyutilty.UUID())
+	requestId = ggutilty.HashCode(ggutilty.UUID())
 	ev = &handlerEvent{f: f, requestId: requestId, requestTime: time.Now().Unix(), receiver: nil}
 	h.ls.PushBack(ev)
 	return
@@ -290,7 +290,7 @@ func (h *Hub) DispatchMessage(message []byte) error {
 		return errors.New("message is empty")
 	}
 
-	pk, err := tyws.NewPacketWithData(message)
+	pk, err := ggwspk.NewPacketWithData(message)
 	if err != nil {
 		return err
 	}

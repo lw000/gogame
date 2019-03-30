@@ -1,12 +1,11 @@
 package ggschedule
 
 import (
+	"demo/gogame/common/auth"
+	"demo/gogame/common/utilty"
 	"errors"
-	"time"
-	"tuyue/tuyue_common/auth"
-	"tuyue/tuyue_common/utilty"
-
 	"github.com/ouqiang/timewheel"
+	"time"
 )
 
 type Schedule struct {
@@ -19,7 +18,7 @@ func NewSchedule() *Schedule {
 }
 
 func (s *Schedule) AddTask(second int, data interface{}) interface{} {
-	taskId, err := tyauth.MD5([]byte(tyutilty.UUID()))
+	taskId, err := ggauth.MD5([]byte(ggutilty.UUID()))
 	if err != nil {
 		return nil
 	}

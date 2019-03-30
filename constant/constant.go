@@ -11,7 +11,8 @@ const (
 )
 
 const (
-	CPlatformMainId = 100000
-	CGameMainId     = 100001
-	CDBMainId       = 100002
+	CGatewayMainId  = 100000
+	CPlatformMainId = 100001
+	CGameMainId     = 100002
+	CDBMainId       = 100003
 )

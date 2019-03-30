@@ -1,14 +1,13 @@
 package gghub
 
 import (
+	"demo/gogame/common/network/ws"
 	"errors"
-	"sync"
-	"tuyue/tuyue_common/network/ws"
-
 	"github.com/gorilla/websocket"
+	"sync"
 )
 
-type HandleFunc func(c *websocket.Conn, pk *tyws.Packet)
+type HandleFunc func(c *websocket.Conn, pk *ggwspk.Packet)
 
 type Key struct {
 	mid uint16
@@ -52,7 +51,7 @@ func (h *Hub) DispatchMessage(c *websocket.Conn, message []byte) error {
 		return errors.New("message is empty")
 	}
 
-	pk, err := tyws.NewPacketWithData(message)
+	pk, err := ggwspk.NewPacketWithData(message)
 	if err != nil {
 		return err
 	}

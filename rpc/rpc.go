@@ -6,40 +6,40 @@ import (
 )
 
 type RpcMgr struct {
-	rpcPlatformCli *client.RpcPlatformClient
-	rpcLoggerCli   *client.RpcLoggerClient
-	rpcDbCli       *client.RpcDbClient
-	rpcPlatformSvr *service.RpcPlatformServer
+	rpcPlatformCli *rpcclient.RpcPlatformClient
+	rpcLoggerCli   *rpcclient.RpcLoggerClient
+	rpcDbCli       *rpcclient.RpcDbClient
+	rpcPlatformSvr *rpcservice.RpcPlatformServer
 }
 
-func (r *RpcMgr) RpcPlatformSvr() *service.RpcPlatformServer {
+func (r *RpcMgr) RpcPlatformSvr() *rpcservice.RpcPlatformServer {
 	return r.rpcPlatformSvr
 }
 
-func (r *RpcMgr) SetRpcPlatformSvr(rpcPlatformSvr *service.RpcPlatformServer) {
+func (r *RpcMgr) SetRpcPlatformSvr(rpcPlatformSvr *rpcservice.RpcPlatformServer) {
 	r.rpcPlatformSvr = rpcPlatformSvr
 }
 
-func (r *RpcMgr) RpcDbCli() *client.RpcDbClient {
+func (r *RpcMgr) RpcDbCli() *rpcclient.RpcDbClient {
 	return r.rpcDbCli
 }
 
-func (r *RpcMgr) SetRpcDbCli(rpcDbCli *client.RpcDbClient) {
+func (r *RpcMgr) SetRpcDbCli(rpcDbCli *rpcclient.RpcDbClient) {
 	r.rpcDbCli = rpcDbCli
 }
 
-func (r *RpcMgr) SetRpcLoggerCli(rpcLoggerCli *client.RpcLoggerClient) {
+func (r *RpcMgr) SetRpcLoggerCli(rpcLoggerCli *rpcclient.RpcLoggerClient) {
 	r.rpcLoggerCli = rpcLoggerCli
 }
 
-func (r *RpcMgr) SetRpcPlatformCli(rpcPlatformCli *client.RpcPlatformClient) {
+func (r *RpcMgr) SetRpcPlatformCli(rpcPlatformCli *rpcclient.RpcPlatformClient) {
 	r.rpcPlatformCli = rpcPlatformCli
 }
 
-func (r *RpcMgr) RpcPlatformCli() *client.RpcPlatformClient {
+func (r *RpcMgr) RpcPlatformCli() *rpcclient.RpcPlatformClient {
 	return r.rpcPlatformCli
 }
 
-func (r *RpcMgr) RpcLoggerCli() *client.RpcLoggerClient {
+func (r *RpcMgr) RpcLoggerCli() *rpcclient.RpcLoggerClient {
 	return r.rpcLoggerCli
 }

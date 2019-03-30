@@ -10,19 +10,22 @@ import (
 )
 
 type RpcRouterClient struct {
-	ServiceId int32
-	UUID      string
-	conn      *grpc.ClientConn
-	client    routersvr.RouterClient
-	status    int
-	m         sync.RWMutex
-	streams   []*RpcRouterStreamClient
+	ServiceId      int32
+	ServiceName    string
+	ServiceVersion string
+	UUID           string
+	conn           *grpc.ClientConn
+	client         routersvr.RouterClient
+	status         int
+	m              sync.RWMutex
+	streams        []*RpcRouterStreamClient
 }
 
 type RpcRouterStreamClient struct {
-	onMessage func(*routersvr.ReponseMessage)
-	client    *RpcRouterClient
-	stream    routersvr.Router_BindStreamClient
+	clientUuid string
+	onMessage  func(*routersvr.ReponseMessage)
+	client     *RpcRouterClient
+	stream     routersvr.Router_BindStreamClient
 }
 
 func (r *RpcRouterClient) Status() int {
@@ -41,7 +44,13 @@ func (r *RpcRouterClient) SetStatus(status int) {
 
 func (r *RpcRouterClient) Start(address string) error {
 	var er error
+	//auth := AuthItem{
+	//	Username:"11111",
+	//	Password:"22222",
+	//}
+	//r.conn, er = grpc.Dial(address, grpc.WithPerRPCCredentials(&auth))
 	r.conn, er = grpc.Dial(address, grpc.WithInsecure())
+
 	if er != nil {
 		log.Error("did not connect: %v", er)
 		return er
@@ -66,7 +75,7 @@ func (r *RpcRouterClient) Stop() error {
 	return er
 }
 
-func (r *RpcRouterClient) CreateStream(onMessage func(response *routersvr.ReponseMessage)) (*RpcRouterStreamClient, error) {
+func (r *RpcRouterClient) CreateStream(onMessage func(resp *routersvr.ReponseMessage)) (*RpcRouterStreamClient, error) {
 	var er error
 	rpcStream := &RpcRouterStreamClient{client: r, onMessage: onMessage}
 	rpcStream.stream, er = r.client.BindStream(context.Background())
@@ -81,8 +90,24 @@ func (r *RpcRouterClient) CreateStream(onMessage func(response *routersvr.Repons
 	return rpcStream, nil
 }
 
+func (r *RpcRouterStreamClient) ClientUuid() string {
+	return r.clientUuid
+}
+
+func (r *RpcRouterStreamClient) SetClientUuid(clientUuid string) {
+	r.clientUuid = clientUuid
+}
+
+func (r *RpcRouterStreamClient) RegisterService(msg []byte) error {
+	if er := r.stream.Send(&routersvr.RequestMessage{ServiceId: r.client.ServiceId, Cuuid: r.clientUuid, Uuid: "", MsgType: 0, Msg: msg}); er != nil {
+		log.Error(er)
+		return er
+	}
+	return nil
+}
+
 func (r *RpcRouterStreamClient) SendMessage(uuid string, msg []byte) error {
-	if er := r.stream.Send(&routersvr.RequestMessage{ServiceId: r.client.ServiceId, Uuid: uuid, Msg: msg}); er != nil {
+	if er := r.stream.Send(&routersvr.RequestMessage{ServiceId: r.client.ServiceId, Cuuid: r.clientUuid, Uuid: uuid, MsgType: 1, Msg: msg}); er != nil {
 		log.Error(er)
 		return er
 	}

@@ -1,0 +1,12 @@
+{
+    "serviceId": 10001,
+    "serviceName": "大厅服务器",
+    "serviceVersion": "1.0.0",
+    "serviceCmd": {
+        "mainId": 10000,
+        "subIds":
+        [
+            {"subId": 1, "dest": "聊天"}
+        ]
+    }
+}

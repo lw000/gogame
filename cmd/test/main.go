@@ -20,7 +20,7 @@ var (
 	cfg *config.JsonConfig
 )
 
-func login(uid int) ([]byte, error) {
+func loginMsg(uid int) ([]byte, error) {
 	m := make(map[string]string)
 	m["uid"] = strconv.Itoa(uid)
 	m["mainId"] = "10000"
@@ -36,7 +36,7 @@ func login(uid int) ([]byte, error) {
 	return data, nil
 }
 
-func chat(uid int) ([]byte, error) {
+func chatMsg(uid int) ([]byte, error) {
 	suid := strconv.Itoa(uid)
 	m := make(map[string]string)
 	m["uid"] = suid
@@ -63,7 +63,7 @@ func (f *FastWsClient) Create(host, path string) error {
 	return nil
 }
 
-func (f *FastWsClient) SendMessage() {
+func (f *FastWsClient) TestMessage() {
 	tickHeartBeat := time.NewTicker(time.Second * time.Duration(45))
 	tickSend := time.NewTicker(time.Millisecond * time.Duration(cfg.Millisecond))
 	for {
@@ -72,22 +72,19 @@ func (f *FastWsClient) SendMessage() {
 			er := f.conn.WriteMessage(websocket.PingMessage, []byte(""))
 			if er != nil {
 				log.Println(er)
+				return
 			}
 		case <-tickSend.C:
-			{
-				data, er := chat(f.uid)
-				if er != nil {
-					log.Println(er)
-				}
-				er = f.conn.WriteMessage(websocket.TextMessage, data)
-				if er != nil {
-					log.Println(er)
-					return
-				}
+			data, er := chatMsg(f.uid)
+			if er != nil {
+				log.Println(er)
+				return
 			}
 
-			{
-
+			er = f.conn.WriteMessage(websocket.TextMessage, data)
+			if er != nil {
+				log.Println(er)
+				return
 			}
 		}
 	}
@@ -118,7 +115,7 @@ func main() {
 			log.Println(er)
 		} else {
 			if cfg.Send {
-				go ws.SendMessage()
+				go ws.TestMessage()
 				go ws.Run()
 			}
 		}

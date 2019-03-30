@@ -1,0 +1,1 @@
+gojson.exe -pkg=ggpcl -name=PclStruct -o=../pcl.go -input=./pcl.json

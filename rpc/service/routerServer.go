@@ -9,30 +9,30 @@ import (
 
 type RpcRouterServer struct {
 	ServiceId      int32
-	onMessage      func(*RpcRouterServerStream, *routersvr.RequestMessage)
-	onConnected    func(*RpcRouterServerStream)
-	onDisConnected func(*RpcRouterServerStream)
+	onMessage      func(s *RpcRouterServerStream, req *routersvr.RequestMessage)
+	onConnected    func(s *RpcRouterServerStream)
+	onDisConnected func(s *RpcRouterServerStream)
 }
 
 type RpcRouterServerStream struct {
-	uuid   string
-	stream routersvr.Router_BindStreamServer
+	clientUuid string
+	stream     routersvr.Router_BindStreamServer
 }
 
-func (r *RpcRouterServer) HandleConnect(f func(stream *RpcRouterServerStream)) {
+func (r *RpcRouterServer) HandleConnect(f func(s *RpcRouterServerStream)) {
 	r.onConnected = f
 }
 
-func (r *RpcRouterServer) HandleDisConnected(f func(stream *RpcRouterServerStream)) {
+func (r *RpcRouterServer) HandleDisConnected(f func(*RpcRouterServerStream)) {
 	r.onDisConnected = f
 }
 
-func (r *RpcRouterServer) HandleMessage(f func(stream *RpcRouterServerStream, req *routersvr.RequestMessage)) {
+func (r *RpcRouterServer) HandleMessage(f func(s *RpcRouterServerStream, req *routersvr.RequestMessage)) {
 	r.onMessage = f
 }
 
 func (r *RpcRouterServer) BindStream(stream routersvr.Router_BindStreamServer) error {
-	serverStream := &RpcRouterServerStream{stream: stream, uuid: ggutilty.UUID()}
+	serverStream := &RpcRouterServerStream{stream: stream, clientUuid: ggutilty.UUID()}
 	if r.onConnected != nil {
 		r.onConnected(serverStream)
 	}
@@ -78,12 +78,12 @@ func (r RpcRouterServerStream) Stream() routersvr.Router_BindStreamServer {
 	return r.stream
 }
 
-func (r RpcRouterServerStream) Uuid() string {
-	return r.uuid
+func (r RpcRouterServerStream) ClientUuid() string {
+	return r.clientUuid
 }
 
-func (r RpcRouterServerStream) SendMessage(serviceId int32, uuid string, msg []byte) error {
-	er := r.stream.Send(&routersvr.ReponseMessage{ServiceId: serviceId, Uuid: uuid, Msg: msg})
+func (r RpcRouterServerStream) SendMessage(serviceId int32, msgType int32, uuid string, msg []byte) error {
+	er := r.stream.Send(&routersvr.ReponseMessage{ServiceId: serviceId, MsgType: msgType, Cuuid: r.clientUuid, Uuid: uuid, Msg: msg})
 	if er != nil {
 		log.Error(er)
 		return er

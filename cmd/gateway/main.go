@@ -4,6 +4,7 @@ import (
 	"demo/gogame/cmd/gateway/global"
 	"demo/gogame/common/utilty"
 	"demo/gogame/constant"
+	"demo/gogame/pcl"
 	"demo/gogame/proto"
 	"demo/gogame/proto/router"
 	"demo/gogame/rpc/client"
@@ -24,8 +25,8 @@ type RecvData struct {
 }
 
 var (
-	rpcRouterStream *rpcclient.RpcRouterStreamClient
-	rpcLoggerCli    *rpcclient.RpcLoggerClient
+	rpcRouter    *rpcclient.RpcRouterStreamClient
+	rpcLoggerCli *rpcclient.RpcLoggerClient
 
 	clients sync.Map
 )
@@ -43,37 +44,36 @@ func Test() {
 	}()
 }
 
-func onRouterMessage(response *routersvr.ReponseMessage) {
-	switch response.ServiceId {
-	case ggconstant.CRouterServiceId:
+func onRouterMessage(resp *routersvr.ReponseMessage) {
+	switch resp.MsgType {
+	case 0:
+		rpcRouter.SetClientUuid(resp.Cuuid)
+		log.Printf("客户端注册成功(Clientuuid:%s)", resp.Cuuid)
+	case 1:
+		session, ok := clients.Load(resp.Uuid)
+		if !ok {
+			log.Printf("客户端不存在[%s]", resp.Uuid)
+			return
+		}
+		s := session.(*melody.Session)
+		if s.IsClosed() {
+			log.Println("客户端已经关闭")
+			return
+		}
+
 		pro := protocol.RequestChat{}
-		if er := proto.Unmarshal(response.Msg, &pro); er != nil {
+		if er := proto.Unmarshal(resp.Msg, &pro); er != nil {
 			log.Println(er)
 			return
 		}
 
 		log.Printf(`{"uid":%s "input":%s}`, pro.Uid, pro.Msg)
 
-		v, ok := clients.Load(response.Uuid)
-		if !ok {
-			log.Println("session error", response.Uuid)
-			return
-		}
-
-		s := v.(*melody.Session)
-		if s.IsClosed() {
-			log.Println("session closed")
-			return
-		}
-
 		er := s.Write([]byte(fmt.Sprintf(`{"uid":%s, "input":%s}`, pro.Uid, pro.Msg)))
 		if er != nil {
 			log.Println("error")
 			return
 		}
-
-	default:
-		log.Println("error")
 	}
 }
 
@@ -101,7 +101,7 @@ func main() {
 		uuid := ggutilty.UUID()
 		s.Set("uuid", uuid)
 		clients.Store(uuid, s)
-		log.Println("websocket的连接成功", uuid)
+		log.Println("连接成功", uuid)
 	})
 
 	m.HandleMessage(func(s *melody.Session, data []byte) {
@@ -131,7 +131,7 @@ func main() {
 		}
 		uuid := v.(string)
 
-		if er = rpcRouterStream.SendMessage(uuid, pbData); er != nil {
+		if er = rpcRouter.SendMessage(uuid, pbData); er != nil {
 			er = s.CloseWithMsg([]byte("路由转发消息失败" + er.Error()))
 			return
 		}
@@ -161,9 +161,18 @@ func main() {
 		log.Panic(er)
 	}
 
-	rpcRouterStream, er = rpcRouterCli.CreateStream(onRouterMessage)
+	rpcRouter, er = rpcRouterCli.CreateStream(onRouterMessage)
 	if er != nil {
 		log.Panic(er)
+	}
+
+	{
+		var data []byte
+		data, er = ggpcl.LoadPcl("./conf/pcl.json")
+		er = rpcRouter.RegisterService(data)
+		if er != nil {
+			log.Panic(er)
+		}
 	}
 
 	Test()

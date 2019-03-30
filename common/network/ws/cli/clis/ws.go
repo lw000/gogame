@@ -1,25 +1,23 @@
 package ggclis
 
 import (
+	"demo/gogame/common/network/ws"
 	"errors"
-	"net/url"
-	"sync"
-	"time"
-	"tuyue/tuyue_common/network/ws"
-
 	log "github.com/alecthomas/log4go"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
+	"net/url"
+	"sync"
+	"time"
 )
 
 type WSSClient struct {
-	conn             *websocket.Conn
-	hub              *Hub
-	sendMutex        sync.Mutex
-	done             chan struct{}
-	heartTimeSecond  int
-	isConnected      bool
-	heartBeatHandler func() error
+	conn            *websocket.Conn
+	hub             *Hub
+	sendMutex       sync.Mutex
+	done            chan struct{}
+	heartTimeSecond int
+	isConnected     bool
 }
 
 func DefaultClient(heartTimeSecond int) *WSSClient {
@@ -59,8 +57,7 @@ func (w *WSSClient) Open(scheme string, host string, path string) (err error) {
 		for {
 			select {
 			case <-heartTicker.C: //TODO:心跳处理
-				er := w.heartBeatHandler()
-				//er := w.send(websocket.PingMessage, []byte{})
+				er := w.send(websocket.PingMessage, []byte{})
 				if er != nil {
 					log.Error(er)
 				}
@@ -89,13 +86,6 @@ func (w *WSSClient) Open(scheme string, host string, path string) (err error) {
 
 func (w *WSSClient) IsConnected() bool {
 	return w.isConnected
-}
-
-func (w *WSSClient) SetHeartBeatHandler(h func() error) {
-	if h == nil {
-		h = func() error { return nil }
-	}
-	w.heartBeatHandler = h
 }
 
 func (w *WSSClient) send(mt int, buf []byte) error {
@@ -133,7 +123,7 @@ func (w *WSSClient) SendMessage(mid, sid uint16, rquestId uint32, pb proto.Messa
 		return errors.New("websocket server is not connected")
 	}
 
-	pk := tyws.NewPacket(mid, sid, rquestId)
+	pk := ggwspk.NewPacket(mid, sid, rquestId)
 	err := pk.EncodeProto(pb)
 	if err != nil {
 		return err

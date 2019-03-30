@@ -1,0 +1,24 @@
+{
+    "serviceId": 10000,
+    "serviceName": "网关服务器",
+    "serviceVersion": "1.0.0",
+    "serviceCmd": {
+        "mainId": 1000,
+        "subIds":
+        [
+            {"subId": 1, "dest": ""},
+            {"subId": 2, "dest": ""},
+            {"subId": 3, "dest": ""},
+            {"subId": 4, "dest": ""},
+            {"subId": 5, "dest": ""},
+            {"subId": 6, "dest": ""},
+            {"subId": 7, "dest": ""},
+            {"subId": 8, "dest": ""},
+            {"subId": 9, "dest": ""},
+            {"subId": 10, "dest": ""},
+            {"subId": 11, "dest": ""},
+            {"subId": 12, "dest": ""},
+            {"subId": 13, "dest": ""}
+        ]
+    }
+}
