@@ -1,5 +1,5 @@
 {
-    "count": 15000,
+    "count": 10,
     "host": "192.168.1.73:10010",
     "path": "ws",
     "millisecond": 1000,

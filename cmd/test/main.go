@@ -12,8 +12,11 @@ import (
 )
 
 type FastWsClient struct {
-	uid  int
-	conn *websocket.Conn
+	tag            int
+	conn           *websocket.Conn
+	onMessage      func([]byte)
+	onConnected    func()
+	onDisConnected func()
 }
 
 var (
@@ -51,53 +54,87 @@ func chatMsg(uid int) ([]byte, error) {
 	return data, nil
 }
 
-func (f *FastWsClient) Create(host, path string) error {
+func (fc *FastWsClient) Create(host, path string) error {
 	u := url.URL{Scheme: "ws", Host: host, Path: path}
 	var er error
-	f.conn, _, er = websocket.DefaultDialer.Dial(u.String(), nil)
+	fc.conn, _, er = websocket.DefaultDialer.Dial(u.String(), nil)
 	if er != nil {
-		//log.Println(er)
 		return er
 	}
-	log.Printf("连接成功[uid=%d]", f.uid)
+
+	fc.onConnected()
+
 	return nil
 }
 
-func (f *FastWsClient) TestMessage() {
+func (fc *FastWsClient) HandleConnected(f func()) {
+	fc.onConnected = f
+}
+
+func (fc *FastWsClient) HandleDisConnected(f func()) {
+	fc.onDisConnected = f
+}
+
+func (fc *FastWsClient) HandleMessage(f func(data []byte)) {
+	fc.onMessage = f
+}
+
+func (fc *FastWsClient) SendMessage(data []byte) error {
+	er := fc.conn.WriteMessage(websocket.TextMessage, data)
+	if er != nil {
+		log.Println(er)
+		return er
+	}
+	return nil
+}
+
+func (fc *FastWsClient) Ping() error {
+	er := fc.conn.WriteMessage(websocket.PingMessage, []byte(""))
+	if er != nil {
+		log.Println(er)
+		return er
+	}
+	return nil
+}
+
+func (fc *FastWsClient) Run() {
+	for {
+		_, message, err := fc.conn.ReadMessage()
+		if err != nil {
+			log.Println(err)
+
+			fc.onDisConnected()
+
+			return
+		}
+		fc.onMessage(message)
+	}
+}
+
+func TestMessage(fc *FastWsClient, uid int) {
 	tickHeartBeat := time.NewTicker(time.Second * time.Duration(45))
 	tickSend := time.NewTicker(time.Millisecond * time.Duration(cfg.Millisecond))
 	for {
 		select {
 		case <-tickHeartBeat.C:
-			er := f.conn.WriteMessage(websocket.PingMessage, []byte(""))
+			er := fc.Ping()
 			if er != nil {
 				log.Println(er)
 				return
 			}
 		case <-tickSend.C:
-			data, er := chatMsg(f.uid)
+			data, er := chatMsg(uid)
 			if er != nil {
 				log.Println(er)
 				return
 			}
 
-			er = f.conn.WriteMessage(websocket.TextMessage, data)
+			er = fc.SendMessage(data)
 			if er != nil {
 				log.Println(er)
 				return
 			}
 		}
-	}
-}
-
-func (f *FastWsClient) Run() {
-	for {
-		_, message, err := f.conn.ReadMessage()
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		log.Println(string(message))
 	}
 }
 
@@ -109,15 +146,27 @@ func main() {
 	}
 
 	for i := 1; i <= cfg.Count; i++ {
-		ws := FastWsClient{uid: i}
+		ws := &FastWsClient{}
+		ws.HandleConnected(func() {
+			log.Printf("connected [uid=%d]", i)
+		})
+
+		ws.HandleDisConnected(func() {
+			log.Println("disconnected")
+		})
+
+		ws.HandleMessage(func(data []byte) {
+			log.Println(string(data))
+		})
 		er = ws.Create(cfg.Host, cfg.Path)
 		if er != nil {
 			log.Println(er)
-		} else {
-			if cfg.Send {
-				go ws.TestMessage()
-				go ws.Run()
-			}
+			continue
+		}
+
+		if cfg.Send {
+			go TestMessage(ws, i)
+			go ws.Run()
 		}
 		time.Sleep(time.Microsecond * time.Duration(20))
 	}
