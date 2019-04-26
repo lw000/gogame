@@ -1,1 +1,1 @@
-protoc --go_out=. ./room.pb
+protoc --go_out=. ./room.proto

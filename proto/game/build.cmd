@@ -1,1 +1,1 @@
-protoc --go_out=plugins=grpc:. ./game.pb
+protoc --go_out=plugins=grpc:. ./game.proto

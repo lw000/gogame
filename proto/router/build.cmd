@@ -1,1 +1,1 @@
-protoc --go_out=plugins=grpc:. ./router.pb
+protoc --go_out=plugins=grpc:. ./router.proto

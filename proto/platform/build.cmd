@@ -1,1 +1,1 @@
-protoc --go_out=plugins=grpc:. ./platform.pb
+protoc --go_out=plugins=grpc:. ./platform.proto
