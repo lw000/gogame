@@ -2,7 +2,7 @@ package main
 
 import (
 	"demo/gogame/cmd/gateway/global"
-	"demo/gogame/common/utilty"
+	"demo/gogame/common/utils"
 	"demo/gogame/constant"
 	"demo/gogame/pcl"
 	"demo/gogame/proto"
@@ -98,7 +98,7 @@ func main() {
 	})
 
 	m.HandleConnect(func(s *melody.Session) {
-		uuid := ggutilty.UUID()
+		uuid := ggutils.UUID()
 		s.Set("uuid", uuid)
 		clients.Store(uuid, s)
 		log.Println("连接成功", uuid)
@@ -156,7 +156,7 @@ func main() {
 		log.Panic(er)
 	}
 
-	rpcRouterCli := &rpcclient.RpcRouterClient{ServiceId: ggconstant.CGatewayServiceId, UUID: ggutilty.UUID()}
+	rpcRouterCli := &rpcclient.RpcRouterClient{ServiceId: ggconstant.CGatewayServiceId, UUID: ggutils.UUID()}
 	if er = rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterServ.Host, global.Cfg.RouterServ.Port)); er != nil {
 		log.Panic(er)
 	}

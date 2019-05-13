@@ -6,7 +6,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"io"
-	"syncthing/lib/sync"
+	"sync"
 )
 
 type RpcRouterClient struct {

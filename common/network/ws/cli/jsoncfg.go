@@ -6,43 +6,35 @@ import (
 	"io/ioutil"
 )
 
-//{
-//		"scheme": "ws",
-//		"host": "47.96.230.81:8830",
-//		"path": ""
-//}
+// {
+// 	"scheme": "ws",
+// 	"host": "47.96.230.81:8830",
+// 	"path": ""
+// }
 
 type WsConfigStruct struct {
 	Host string `json:"host"`
 	Path string `json:"path"`
 }
 
-type Config struct {
-	Cfg WsConfigStruct
-}
-
-func NewConfig() *Config {
-	return &Config{}
-}
-
-func LoadConfig(file string) (*Config, error) {
-	cfg := &Config{}
+func LoadConfig(file string) (*WsConfigStruct, error) {
+	cfg := &WsConfigStruct{}
 	err := cfg.Load(file)
 	return cfg, err
 }
 
-func (c *Config) Load(file string) error {
+func (c *WsConfigStruct) Load(file string) error {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(data, &c.Cfg); err != nil {
+	if err = json.Unmarshal(data, c); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (c Config) String() string {
-	return fmt.Sprintf("{Host:%s Path:%s}", c.Cfg.Host, c.Cfg.Path)
+func (c WsConfigStruct) String() string {
+	return fmt.Sprintf("{Host:%s Path:%s}", c.Host, c.Path)
 }

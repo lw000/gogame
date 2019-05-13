@@ -1,45 +1,43 @@
 package ggclis
 
 import (
-	"demo/gogame/common/network/ws"
 	"errors"
 	"sync"
+	"tuyue/tuyue_common/network/ws/packet"
 )
 
-type HandlerFunc func(pk *ggwspk.Packet)
+type HandlerFunc func(pk *typacket.Packet)
 
-type Key struct {
+type hubKey struct {
 	mid uint16
 	sid uint16
 }
 
 type Hub struct {
-	mf sync.Map
+	events sync.Map
 }
 
 func NewHub() *Hub {
 	return &Hub{}
 }
 
-func (h *Hub) Handle(mid, sid uint16, f HandlerFunc) {
-	k := Key{mid: mid, sid: sid}
-	if _, ok := h.mf.Load(k); !ok {
-		h.mf.Store(k, f)
-	} else {
+func (h *Hub) AddHandle(mid, sid uint16, fn HandlerFunc) {
+	k := hubKey{mid: mid, sid: sid}
+	if _, ok := h.events.Load(k); !ok {
+		h.events.Store(k, fn)
 	}
 }
 
 func (h *Hub) RemoveHandle(mid, sid uint16) {
-	k := Key{mid: mid, sid: sid}
-	if _, ok := h.mf.Load(k); !ok {
-		h.mf.Delete(k)
-	} else {
+	k := hubKey{mid: mid, sid: sid}
+	if _, ok := h.events.Load(k); !ok {
+		h.events.Delete(k)
 	}
 }
 
-func (h *Hub) Get(mid, sid uint16) HandlerFunc {
-	k := Key{mid: mid, sid: sid}
-	if f, ok := h.mf.Load(k); ok {
+func (h *Hub) Query(mid, sid uint16) HandlerFunc {
+	k := hubKey{mid: mid, sid: sid}
+	if f, ok := h.events.Load(k); ok {
 		return f.(HandlerFunc)
 	}
 	return nil
@@ -50,16 +48,16 @@ func (h *Hub) DispatchMessage(message []byte) error {
 		return errors.New("message is empty")
 	}
 
-	pk, err := ggwspk.NewPacketWithData(message)
+	pk, err := typacket.NewPacketWithData(message)
 	if err != nil {
 		return err
 	}
 
-	f := h.Get(pk.Mid(), pk.Sid())
-	if f == nil {
+	fn := h.Query(pk.Mid(), pk.Sid())
+	if fn == nil {
 		return errors.New("protocol missing")
 	} else {
-		f(pk)
+		fn(pk)
 	}
 
 	return nil

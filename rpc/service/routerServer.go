@@ -1,7 +1,7 @@
 package rpcservice
 
 import (
-	"demo/gogame/common/utilty"
+	"demo/gogame/common/utils"
 	"demo/gogame/proto/router"
 	log "github.com/alecthomas/log4go"
 	"io"
@@ -32,7 +32,7 @@ func (r *RpcRouterServer) HandleMessage(f func(s *RpcRouterServerStream, req *ro
 }
 
 func (r *RpcRouterServer) BindStream(stream routersvr.Router_BindStreamServer) error {
-	serverStream := &RpcRouterServerStream{stream: stream, clientUuid: ggutilty.UUID()}
+	serverStream := &RpcRouterServerStream{stream: stream, clientUuid: ggutils.UUID()}
 	if r.onConnected != nil {
 		r.onConnected(serverStream)
 	}

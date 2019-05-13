@@ -6,15 +6,15 @@ import (
 	"io/ioutil"
 )
 
-//{
-//"From": "2241172930@qq.com",
-//"Pass": "ltdxvumslixddjea",
-//"To": [
-//"373102227@qq.com"
-//],
-//"host": "smtp.qq.com",
-//"port": 465
-//}
+// {
+// "From": "2241172930@qq.com",
+// "Pass": "ltdxvumslixddjea",
+// "To": [
+// "373102227@qq.com"
+// ],
+// "host": "smtp.qq.com",
+// "port": 465
+// }
 
 type MailConfig struct {
 	From string   `json:"Form"`

@@ -2,13 +2,12 @@ package ggclic
 
 import (
 	"container/list"
-	"demo/gogame/common/network/ws"
-	"demo/gogame/common/utilty"
 	"errors"
 	"fmt"
 	log "github.com/alecthomas/log4go"
 	"sync"
-	"time"
+	"tuyue/tuyue_common/network/ws/packet"
+	"tuyue/tuyue_common/utils"
 )
 
 type HandlerFunc func(buf []byte)
@@ -20,19 +19,16 @@ const (
 	ASYNC CallMode = 1 //异步消息模式
 )
 
-type key struct {
+type hubKey struct {
 	mid uint16
 	sid uint16
 }
 
 type handlerEvent struct {
-	eventType   int         //0:常驻,
-	status      int         //0:正常，1:超时
-	requestId   uint32      //事件Id
-	requestTime int64       //请求时间戳
-	reponseTime int64       //回应时间戳
-	f           HandlerFunc //回调函数
-	receiver    chan interface{}
+	status   int         //0:正常，1:超时
+	clientId uint32      //客户端Id
+	fn       HandlerFunc //回调函数
+	receiver chan interface{}
 }
 
 type Handler struct {
@@ -61,7 +57,7 @@ func (h *Handler) Add(v *handlerEvent) {
 	h.ls.PushBack(v)
 }
 
-func (h *Handler) AddSyncHandler(f HandlerFunc) (receiver <-chan interface{}, requestId uint32) {
+func (h *Handler) AddSyncHandler(fn HandlerFunc) (receiver <-chan interface{}, clientId uint32) {
 	if h.model != SYNC {
 		return nil, 0
 	}
@@ -69,15 +65,15 @@ func (h *Handler) AddSyncHandler(f HandlerFunc) (receiver <-chan interface{}, re
 	h.m.Lock()
 	defer h.m.Unlock()
 
-	requestId = ggutilty.HashCode(ggutilty.UUID())
+	clientId = tyutils.HashCode(tyutils.UUID())
 	var hv *handlerEvent
-	hv = &handlerEvent{f: f, requestId: requestId, requestTime: time.Now().Unix(), receiver: make(chan interface{}, 1)}
+	hv = &handlerEvent{fn: fn, clientId: clientId, receiver: make(chan interface{}, 1)}
 	h.ls.PushBack(hv)
 
-	return hv.receiver, requestId
+	return hv.receiver, clientId
 }
 
-func (h *Handler) AddAsyncHandler(f HandlerFunc) (requestId uint32) {
+func (h *Handler) AddAsyncHandler(fn HandlerFunc) (clientId uint32) {
 	if h.model != ASYNC {
 		return 0
 	}
@@ -86,19 +82,19 @@ func (h *Handler) AddAsyncHandler(f HandlerFunc) (requestId uint32) {
 	defer h.m.Unlock()
 
 	var ev *handlerEvent
-	requestId = ggutilty.HashCode(ggutilty.UUID())
-	ev = &handlerEvent{f: f, requestId: requestId, requestTime: time.Now().Unix(), receiver: nil}
+	clientId = tyutils.HashCode(tyutils.UUID())
+	ev = &handlerEvent{fn: fn, clientId: clientId, receiver: nil}
 	h.ls.PushBack(ev)
 	return
 }
 
-func (h *Handler) Query(requestId uint32) *handlerEvent {
+func (h *Handler) Query(clientId uint32) *handlerEvent {
 	h.m.Lock()
 	defer h.m.Unlock()
 
 	for e := h.ls.Front(); e != nil; e = e.Next() {
 		ev := e.Value.(*handlerEvent)
-		if ev.requestId == requestId {
+		if ev.clientId == clientId {
 			return ev
 		}
 	}
@@ -106,8 +102,8 @@ func (h *Handler) Query(requestId uint32) *handlerEvent {
 	return nil
 }
 
-func (h *Handler) Remove(requestId uint32) {
-	h.RemoveWith(&handlerEvent{requestId: requestId})
+func (h *Handler) Remove(clientId uint32) {
+	h.RemoveWith(&handlerEvent{clientId: clientId})
 }
 
 func (h *Handler) RemoveWith(v *handlerEvent) {
@@ -115,7 +111,7 @@ func (h *Handler) RemoveWith(v *handlerEvent) {
 	defer h.m.Unlock()
 	for e := h.ls.Front(); e != nil; e = e.Next() {
 		ev := e.Value.(*handlerEvent)
-		if ev.requestId == v.requestId {
+		if ev.clientId == v.clientId {
 			if ev.receiver != nil {
 				close(ev.receiver)
 			}
@@ -125,8 +121,8 @@ func (h *Handler) RemoveWith(v *handlerEvent) {
 	}
 }
 
-func (h *Handler) Cancel(requestId uint32) {
-	h.CancelWithOuttime(&handlerEvent{requestId: requestId})
+func (h *Handler) Cancel(clientId uint32) {
+	h.CancelWithOuttime(&handlerEvent{clientId: clientId})
 }
 
 func (h *Handler) CancelWithOuttime(v *handlerEvent) {
@@ -135,7 +131,7 @@ func (h *Handler) CancelWithOuttime(v *handlerEvent) {
 
 	for e := h.ls.Front(); e != nil; e = e.Next() {
 		ev := e.Value.(*handlerEvent)
-		if ev.requestId == v.requestId {
+		if ev.clientId == v.clientId {
 			ev.status = 1
 			if ev.receiver != nil {
 				close(ev.receiver)
@@ -161,7 +157,7 @@ func (h *Handler) Clear() {
 	}
 }
 
-func (h *Handler) Range(f func(v *handlerEvent) bool) {
+func (h *Handler) Range(fn func(v *handlerEvent) bool) {
 	h.m.RLock()
 	defer h.m.RUnlock()
 
@@ -181,7 +177,7 @@ func (h *Handler) Range(f func(v *handlerEvent) bool) {
 	for e := h.ls.Front(); e != nil; e = e.Next() {
 		ev := e.Value.(*handlerEvent)
 		if ev.status == 0 {
-			if f(ev) {
+			if fn(ev) {
 				if ev.receiver != nil {
 					close(ev.receiver)
 				}
@@ -219,8 +215,8 @@ func NewHub(model CallMode) *Hub {
 	return &Hub{model: model}
 }
 
-func (h *Hub) Handle(mid, sid uint16, f HandlerFunc) (receiver <-chan interface{}, requestId uint32) {
-	k := key{mid: mid, sid: sid}
+func (h *Hub) AddHandle(mid, sid uint16, fn HandlerFunc) (receiver <-chan interface{}, clientId uint32) {
+	k := hubKey{mid: mid, sid: sid}
 	v, ok := h.mfs.Load(k)
 	if !ok {
 		v = newHandler(h.model)
@@ -228,34 +224,34 @@ func (h *Hub) Handle(mid, sid uint16, f HandlerFunc) (receiver <-chan interface{
 	}
 
 	if h.model == SYNC {
-		receiver, requestId = v.(*Handler).AddSyncHandler(f)
-		return receiver, requestId
+		receiver, clientId = v.(*Handler).AddSyncHandler(fn)
+		return receiver, clientId
 	}
 
 	if h.model == ASYNC {
-		requestId = v.(*Handler).AddAsyncHandler(f)
-		return nil, requestId
+		clientId = v.(*Handler).AddAsyncHandler(fn)
+		return nil, clientId
 	}
 
 	return nil, 0
 }
 
-func (h *Hub) RemoveHandle(mid, sid uint16, requestId uint32) {
-	v, ok := h.mfs.Load(key{mid: mid, sid: sid})
+func (h *Hub) RemoveHandle(mid, sid uint16, clientId uint32) {
+	v, ok := h.mfs.Load(hubKey{mid: mid, sid: sid})
 	if ok {
-		v.(*Handler).Remove(requestId)
+		v.(*Handler).Remove(clientId)
 	}
 }
 
-func (h *Hub) CancelHandle(mid, sid uint16, requestId uint32) {
-	v, ok := h.mfs.Load(key{mid: mid, sid: sid})
+func (h *Hub) CancelHandle(mid, sid uint16, clientId uint32) {
+	v, ok := h.mfs.Load(hubKey{mid: mid, sid: sid})
 	if ok {
-		v.(*Handler).Cancel(requestId)
+		v.(*Handler).Cancel(clientId)
 	}
 }
 
 func (h *Hub) Get(mid, sid uint16) *Handler {
-	if v, ok := h.mfs.Load(key{mid: mid, sid: sid}); ok {
+	if v, ok := h.mfs.Load(hubKey{mid: mid, sid: sid}); ok {
 		return v.(*Handler)
 	}
 	return nil
@@ -290,9 +286,9 @@ func (h *Hub) DispatchMessage(message []byte) error {
 		return errors.New("message is empty")
 	}
 
-	pk, err := ggwspk.NewPacketWithData(message)
-	if err != nil {
-		return err
+	pk, er := typacket.NewPacketWithData(message)
+	if er != nil {
+		return er
 	}
 
 	hd := h.Get(pk.Mid(), pk.Sid())
@@ -300,20 +296,17 @@ func (h *Hub) DispatchMessage(message []byte) error {
 		return errors.New("protocol missing")
 	}
 
-	ev := hd.Query(pk.RequestId())
+	ev := hd.Query(pk.ClientId())
 	if ev == nil {
 		return errors.New(fmt.Sprintf("the request was cancelled due to timeout. detail:%+v", pk))
 	}
-
-	//更新响应时间
-	ev.reponseTime = time.Now().Unix()
 
 	switch h.model {
 	case SYNC:
 		ev.receiver <- pk.Data()
 	case ASYNC:
-		if ev.f != nil {
-			ev.f(pk.Data())
+		if ev.fn != nil {
+			ev.fn(pk.Data())
 		} else {
 		}
 	default:

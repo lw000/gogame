@@ -1,28 +1,29 @@
 package ggschedule
 
 import (
-	"demo/gogame/common/auth"
-	"demo/gogame/common/utilty"
 	"errors"
-	"github.com/ouqiang/timewheel"
 	"time"
+	"tuyue/tuyue_common/auth"
+	"tuyue/tuyue_common/utils"
+
+	"github.com/ouqiang/timewheel"
 )
 
 type Schedule struct {
 	tw *timewheel.TimeWheel
-	f  func(taskId, data interface{})
+	f  func(data interface{})
 }
 
 func NewSchedule() *Schedule {
 	return &Schedule{}
 }
 
-func (s *Schedule) AddTask(second int, data interface{}) interface{} {
-	taskId, err := ggauth.MD5([]byte(ggutilty.UUID()))
+func (s *Schedule) AddTask(second int, data interface{}) string {
+	taskId, err := tyauth.MD5([]byte(tyutils.UUID()))
 	if err != nil {
-		return nil
+		return ""
 	}
-	s.tw.AddTimer(time.Second*time.Duration(second), taskId, timewheel.TaskData{"t": taskId, "d": data})
+	s.tw.AddTimer(time.Second*time.Duration(second), taskId, map[string]interface{}{taskId: data})
 	return taskId
 }
 
@@ -34,13 +35,11 @@ func (s *Schedule) RemoveTask(taskId interface{}) {
 	s.tw.RemoveTimer(taskId)
 }
 
-func (s *Schedule) Start(f func(taskId, data interface{})) error {
+func (s *Schedule) Start(f func(data interface{})) error {
 	s.f = f
-	s.tw = timewheel.New(time.Second*time.Duration(1), 3600, func(taskData timewheel.TaskData) {
-		taskId := taskData["t"]
-		data := taskData["d"]
+	s.tw = timewheel.New(time.Second*time.Duration(1), 3600, func(taskData interface{}) {
 		if s.f != nil {
-			s.f(taskId, data)
+			s.f(taskData)
 		}
 	})
 

@@ -18,37 +18,37 @@ func NewLruCache(size int) *LruCache {
 	}
 }
 
-func (this *LruCache) Add(key interface{}, value interface{}) {
-	this.m.Lock()
-	defer this.m.Unlock()
+func (lru *LruCache) Add(key interface{}, value interface{}) {
+	lru.m.Lock()
+	defer lru.m.Unlock()
 
-	this.cache.Add(key, value)
+	lru.cache.Add(key, value)
 }
 
-func (this *LruCache) Remove(key interface{}) {
-	this.m.Lock()
-	defer this.m.Unlock()
+func (lru *LruCache) Remove(key interface{}) {
+	lru.m.Lock()
+	defer lru.m.Unlock()
 
-	this.cache.Remove(key)
+	lru.cache.Remove(key)
 }
 
-func (this *LruCache) Clear() {
-	this.m.Lock()
-	defer this.m.Unlock()
+func (lru *LruCache) Clear() {
+	lru.m.Lock()
+	defer lru.m.Unlock()
 
-	this.cache.Clear()
+	lru.cache.Clear()
 }
 
-func (this *LruCache) Get(key interface{}) (value interface{}, ok bool) {
-	this.m.Lock()
-	defer this.m.Unlock()
+func (lru *LruCache) Get(key interface{}) (value interface{}, ok bool) {
+	lru.m.Lock()
+	defer lru.m.Unlock()
 
-	return this.cache.Get(key)
+	return lru.cache.Get(key)
 }
 
-func (this *LruCache) Len() int {
-	this.m.Lock()
-	defer this.m.Unlock()
+func (lru *LruCache) Len() int {
+	lru.m.Lock()
+	defer lru.m.Unlock()
 
-	return this.cache.Len()
+	return lru.cache.Len()
 }
