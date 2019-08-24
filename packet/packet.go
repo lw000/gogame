@@ -82,7 +82,7 @@ func (p *Packet) readHead(buf *bytes.Buffer) (err error) {
 	return err
 }
 
-//Encode 编码数据包
+// Encode 编码数据包
 func (p *Packet) encode(data []byte) error {
 	buf := &bytes.Buffer{}
 	err := p.writeHead(buf)
@@ -107,7 +107,7 @@ func (p *Packet) encode(data []byte) error {
 	return nil
 }
 
-//EncodeProto 编码数据包
+// EncodeProto 编码数据包
 func (p *Packet) EncodeProto(pb proto.Message) error {
 	if pb == nil {
 		err := p.encode([]byte{})
