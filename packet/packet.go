@@ -10,7 +10,7 @@ import (
 
 type Packet struct {
 	ver       uint8
-	ccode     uint32
+	code      uint32
 	mid       uint16
 	sid       uint16
 	requestId uint32
@@ -48,7 +48,7 @@ func (p *Packet) writeHead(buf *bytes.Buffer) (err error) {
 	if err = binary.Write(buf, binary.LittleEndian, p.ver); err != nil {
 		return err
 	}
-	if err = binary.Write(buf, binary.LittleEndian, p.ccode); err != nil {
+	if err = binary.Write(buf, binary.LittleEndian, p.code); err != nil {
 		return err
 	}
 	if err = binary.Write(buf, binary.LittleEndian, p.mid); err != nil {
@@ -67,7 +67,7 @@ func (p *Packet) readHead(buf *bytes.Buffer) (err error) {
 	if err = binary.Read(buf, binary.LittleEndian, &p.ver); err != nil {
 		return err
 	}
-	if err = binary.Read(buf, binary.LittleEndian, &p.ccode); err != nil {
+	if err = binary.Read(buf, binary.LittleEndian, &p.code); err != nil {
 		return err
 	}
 	if err = binary.Read(buf, binary.LittleEndian, &p.mid); err != nil {
@@ -132,8 +132,8 @@ func (p Packet) Ver() uint8 {
 	return p.ver
 }
 
-func (p Packet) Ccode() uint32 {
-	return p.ccode
+func (p Packet) Code() uint32 {
+	return p.code
 }
 
 func (p Packet) Mid() uint16 {
@@ -153,5 +153,5 @@ func (p Packet) Data() []byte {
 }
 
 func (p Packet) String() string {
-	return fmt.Sprintf("{ver:%d ccode:%d mid:%d sid:%d requestId:%d datalen:%d}", p.ver, p.ccode, p.mid, p.sid, p.requestId, len(p.data))
+	return fmt.Sprintf("{ver:%d ccode:%d mid:%d sid:%d requestId:%d datalen:%d}", p.ver, p.code, p.mid, p.sid, p.requestId, len(p.data))
 }

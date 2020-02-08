@@ -1,0 +1,9 @@
+# Created by .ignore support plugin (hsz.mobi)
+cmd/aiserv/log/
+cmd/dbserv/log/
+cmd/gamesrv/log/
+cmd/gateway/log/
+cmd/loggersrv/log/
+cmd/platformsrv/log/
+cmd/routerserv/log/
+cmd/test/test.rar

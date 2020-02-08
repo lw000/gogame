@@ -2,7 +2,6 @@ package packet
 
 import (
 	"bytes"
-	log "github.com/alecthomas/log4go"
 )
 
 type NetBuffer struct {
@@ -16,9 +15,8 @@ func NewNetBuffer() *NetBuffer {
 }
 
 func (nb *NetBuffer) Add(buf []byte) int {
-	n, er := nb.buf.Write(buf)
-	if er != nil {
-		log.Error(er)
+	n, err := nb.buf.Write(buf)
+	if err != nil {
 	}
 
 	return n
@@ -26,9 +24,8 @@ func (nb *NetBuffer) Add(buf []byte) int {
 
 func (nb *NetBuffer) Read(n int) []byte {
 	buf := make([]byte, n)
-	n, er := nb.buf.Read(buf)
-	if er != nil {
-		log.Error(er)
+	n, err := nb.buf.Read(buf)
+	if err != nil {
 	}
 	if n > 0 {
 		return buf
