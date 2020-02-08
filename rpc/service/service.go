@@ -14,7 +14,7 @@ import (
 type RpcServer struct {
 	port   int64
 	listen net.Listener
-	serv   *grpc.Server
+	gServe *grpc.Server
 }
 
 func authenticateClient(ctx context.Context) (string, error) {
@@ -43,33 +43,33 @@ func unaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServ
 	return handler(ctx, req)
 }
 
-func (r *RpcServer) StartService(port int64, f func(s *grpc.Server)) error {
-	r.port = port
-	var er error
-	address := fmt.Sprintf(":%d", r.port)
-	r.listen, er = net.Listen("tcp", address)
-	if er != nil {
-		log.Error(er)
-		return er
+func (serve *RpcServer) StartService(port int64, fn func(s *grpc.Server)) error {
+	serve.port = port
+	var err error
+	address := fmt.Sprintf(":%d", serve.port)
+	serve.listen, err = net.Listen("tcp", address)
+	if err != nil {
+		log.Error(err)
+		return err
 	}
 
-	//opts := []grpc.ServerOption{grpc.UnaryInterceptor(unaryInterceptor)}
-	//r.serv = grpc.NewServer(opts...)
-	r.serv = grpc.NewServer()
+	// opts := []grpc.ServerOption{grpc.UnaryInterceptor(unaryInterceptor)}
+	// serve.serv = grpc.NewServer(opts...)
+	serve.gServe = grpc.NewServer()
 
-	f(r.serv)
+	fn(serve.gServe)
 
-	reflection.Register(r.serv)
+	reflection.Register(serve.gServe)
 
-	log.Info("Listening and serving RPC on [:%d]", r.port)
+	log.Info("Listening and serving RPC on [:%d]", serve.port)
 
-	go r.run()
+	go serve.run()
 
 	return nil
 }
 
-func (r *RpcServer) run() {
-	if er := r.serv.Serve(r.listen); er != nil {
-		log.Error("failed to serve: %v", er)
+func (serve *RpcServer) run() {
+	if err := serve.gServe.Serve(serve.listen); err != nil {
+		log.Error("failed to gServe: %v", err)
 	}
 }
