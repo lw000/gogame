@@ -3,7 +3,7 @@ package main
 import (
 	"demo/gogame/cmd/gateway/global"
 	"demo/gogame/pcl"
-	"demo/gogame/proto/router"
+	"demo/gogame/protos/router"
 	"demo/gogame/rpc/client"
 	"demo/gogame/rpc/service"
 	"fmt"

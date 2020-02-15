@@ -112,14 +112,14 @@ func (p *Packet) Encode(data []byte) error {
 }
 
 // EncodeProto 编码数据包
-// func (p *Packet) EncodeProto(pb proto.Message) error {
+// func (p *Packet) EncodeProto(pb protos.Message) error {
 // 	if pb == nil {
 // 		er := p.Encode([]byte{})
 // 		if er != nil {
 // 			return er
 // 		}
 // 	} else {
-// 		data, er := proto.Marshal(pb)
+// 		data, er := protos.Marshal(pb)
 // 		if er != nil {
 // 			return er
 // 		}

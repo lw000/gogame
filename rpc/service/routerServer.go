@@ -2,7 +2,7 @@ package rpcservice
 
 import (
 	"demo/gogame/common/utils"
-	"demo/gogame/proto/router"
+	"demo/gogame/protos/router"
 	log "github.com/alecthomas/log4go"
 	"io"
 )

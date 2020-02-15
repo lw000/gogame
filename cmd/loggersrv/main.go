@@ -2,7 +2,7 @@ package main
 
 import (
 	"demo/gogame/cmd/loggersrv/global"
-	"demo/gogame/proto/logger"
+	"demo/gogame/protos/logger"
 	"demo/gogame/rpc/service"
 	"google.golang.org/grpc"
 	"log"

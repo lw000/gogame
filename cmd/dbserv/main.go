@@ -3,7 +3,7 @@ package main
 import (
 	"demo/gogame/cmd/dbserv/global"
 	"demo/gogame/common/sys"
-	"demo/gogame/proto/db"
+	"demo/gogame/protos/db"
 	"demo/gogame/rpc/client"
 	"demo/gogame/rpc/service"
 	"fmt"

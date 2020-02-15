@@ -10,7 +10,7 @@ import (
 type HandlerFunc func(conn *websocket.Conn, pk *typacket.Packet)
 
 var ErrNotFound = errors.New("hub: not found handler")
-var ErrProto = errors.New("hub: proto error")
+var ErrProto = errors.New("hub: protos error")
 var EmptyMsg = errors.New("hub: empty msg")
 
 type hubKey struct {

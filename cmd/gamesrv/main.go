@@ -3,8 +3,8 @@ package main
 import (
 	"demo/gogame/cmd/gamesrv/global"
 	"demo/gogame/common/sys"
-	"demo/gogame/proto/db"
-	"demo/gogame/proto/router"
+	"demo/gogame/protos/db"
+	"demo/gogame/protos/router"
 	"demo/gogame/rpc/client"
 	"fmt"
 	"log"
@@ -22,7 +22,7 @@ var (
 )
 
 func Test() {
-	//网关数据发送测试
+	// 网关数据发送测试
 	go func() {
 		for {
 			var requestId int32 = 0
@@ -36,7 +36,7 @@ func Test() {
 		}
 	}()
 
-	//测试日志写入服务
+	// 测试日志写入服务
 	go func() {
 		for {
 			er := rpcLoggerCli.WriteLogger("gamesrv-1")
@@ -47,7 +47,7 @@ func Test() {
 		}
 	}()
 
-	//测试数据库服务
+	// 测试数据库服务
 	go func() {
 		for {
 			var requestId int32 = 0
