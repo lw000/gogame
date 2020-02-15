@@ -28,15 +28,15 @@ func (r *RpcDbServer) BidStream(stream dbsvr.DB_BidStreamServer) error {
 			log.Error("收到客户端通过context发出的终止信号")
 			return ctx.Err()
 		default:
-			req, er := stream.Recv()
-			if er == io.EOF {
+			req, err := stream.Recv()
+			if err == io.EOF {
 				log.Error("客户端发送数据流结束")
 				return nil
 			}
 
-			if er != nil {
-				log.Error("服务端数据接收出错 %v", er)
-				return er
+			if err != nil {
+				log.Error("服务端数据接收出错 %v", err)
+				return err
 			}
 
 			log.Info(req)

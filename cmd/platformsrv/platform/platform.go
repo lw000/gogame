@@ -7,18 +7,18 @@ import (
 )
 
 type Platform struct {
-	Id    int64
-	Name  string
-	Rooms []*Room
-	m     sync.Mutex
-	usrv  *user.Manager
+	Id       int64
+	Name     string
+	Rooms    []*Room
+	m        sync.Mutex
+	mgrServe *user.Manager
 }
 
 func NewPlatform(Id int64, name string) *Platform {
 	return &Platform{
-		Id:   Id,
-		Name: name,
-		usrv: user.Service(),
+		Id:       Id,
+		Name:     name,
+		mgrServe: user.Service(),
 	}
 }
 

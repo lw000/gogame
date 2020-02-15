@@ -1,11 +1,11 @@
 {
     "port": 10010,
     "debug": 1,
-    "loggerServ": {
+    "loggerServe": {
         "host": "127.0.0.1",
         "port": 37312
     },
-    "routerServ": {
+    "routerServe": {
         "host": "127.0.0.1",
         "port": 37319
     }

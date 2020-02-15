@@ -46,8 +46,8 @@ func (r *RpcRouterServer) BindStream(stream routersvr.Router_BindStreamServer) e
 			}
 			return ctx.Err()
 		default:
-			req, er := stream.Recv()
-			if er == io.EOF {
+			req, err := stream.Recv()
+			if err == io.EOF {
 				log.Error("客户端发送数据流结束")
 				if r.onDisConnected != nil {
 					r.onDisConnected(serverStream)
@@ -55,12 +55,12 @@ func (r *RpcRouterServer) BindStream(stream routersvr.Router_BindStreamServer) e
 				return nil
 			}
 
-			if er != nil {
-				log.Error("服务端数据接收出错 %v", er)
+			if err != nil {
+				log.Error("服务端数据接收出错 %v", err)
 				if r.onDisConnected != nil {
 					r.onDisConnected(serverStream)
 				}
-				return er
+				return err
 			}
 
 			if r.onMessage != nil {
@@ -79,10 +79,10 @@ func (r RpcRouterServerStream) ClientUuid() string {
 }
 
 func (r RpcRouterServerStream) SendMessage(serviceId int32, msgType int32, uuid string, msg []byte) error {
-	er := r.stream.Send(&routersvr.ReponseMessage{ServiceId: serviceId, MsgType: msgType, Cuuid: r.clientUuid, Uuid: uuid, Msg: msg})
-	if er != nil {
-		log.Error(er)
-		return er
+	err := r.stream.Send(&routersvr.ReponseMessage{ServiceId: serviceId, MsgType: msgType, Cuuid: r.clientUuid, Uuid: uuid, Msg: msg})
+	if err != nil {
+		log.Error(err)
+		return err
 	}
 	return nil
 }

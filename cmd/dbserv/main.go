@@ -20,8 +20,8 @@ var (
 func Test() {
 	go func() {
 		for {
-			er := rpcLoggerCli.WriteLogger("dbserv-1")
-			if er != nil {
+			err := rpcLoggerCli.WriteLogger("dbserv-1")
+			if err != nil {
 
 			}
 			time.Sleep(time.Second * time.Duration(1))
@@ -34,8 +34,8 @@ func main() {
 
 	})
 
-	if er := global.LoadGlobalConfig(); er != nil {
-		log.Panic(er)
+	if err := global.LoadGlobalConfig(); err != nil {
+		log.Panic(err)
 	}
 
 	rpcDbSvr = &rpcservice.RpcDbServer{}
@@ -44,28 +44,28 @@ func main() {
 
 		switch req.MainId {
 		case 0:
-			er := stream.Send(&dbsvr.Response{MainId: req.MainId, SubId: req.SubId, RequestId: req.RequestId, Output: req.Input})
-			if er != nil {
-				log.Println(er)
+			err := stream.Send(&dbsvr.Response{MainId: req.MainId, SubId: req.SubId, RequestId: req.RequestId, Output: req.Input})
+			if err != nil {
+				log.Println(err)
 			}
 		case 1:
-			er := stream.Send(&dbsvr.Response{MainId: req.MainId, SubId: req.SubId, RequestId: req.RequestId, Output: req.Input})
-			if er != nil {
-				log.Println(er)
+			err := stream.Send(&dbsvr.Response{MainId: req.MainId, SubId: req.SubId, RequestId: req.RequestId, Output: req.Input})
+			if err != nil {
+				log.Println(err)
 			}
 		}
 	})
 
 	rpcSvr := &rpcservice.RpcServer{}
-	if er := rpcSvr.StartService(global.Cfg.Port, func(s *grpc.Server) {
+	if err := rpcSvr.StartService(global.Cfg.Port, func(s *grpc.Server) {
 		dbsvr.RegisterDBServer(s, rpcDbSvr)
-	}); er != nil {
-		log.Panic(er)
+	}); err != nil {
+		log.Panic(err)
 	}
 
 	rpcLoggerCli = &rpcclient.RpcLoggerClient{}
-	if er := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port)); er != nil {
-		log.Panic(er)
+	if err := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServe.Host, global.Cfg.LoggerServe.Port)); err != nil {
+		log.Panic(err)
 	}
 
 	Test()

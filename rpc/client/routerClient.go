@@ -43,17 +43,17 @@ func (r *RpcRouterClient) SetStatus(status int) {
 }
 
 func (r *RpcRouterClient) Start(address string) error {
-	var er error
-	//auth := AuthItem{
-	//	Username:"11111",
-	//	Password:"22222",
-	//}
-	//r.conn, er = grpc.Dial(address, grpc.WithPerRPCCredentials(&auth))
-	r.conn, er = grpc.Dial(address, grpc.WithInsecure())
+	var err error
+	// auth := AuthItem{
+	// 	Username:"11111",
+	// 	Password:"22222",
+	// }
+	// r.conn, err = grpc.Dial(address, grpc.WithPerRPCCredentials(&auth))
+	r.conn, err = grpc.Dial(address, grpc.WithInsecure())
 
-	if er != nil {
-		log.Error("did not connect: %v", er)
-		return er
+	if err != nil {
+		log.Error("did not connect: %v", err)
+		return err
 	}
 	r.client = routersvr.NewRouterClient(r.conn)
 
@@ -61,27 +61,27 @@ func (r *RpcRouterClient) Start(address string) error {
 }
 
 func (r *RpcRouterClient) Stop() error {
-	var er error
+	var err error
 	for _, s := range r.streams {
-		er = s.CloseSend()
-		if er != nil {
-			log.Error(er)
+		err = s.CloseSend()
+		if err != nil {
+			log.Error(err)
 		}
 	}
-	er = r.conn.Close()
-	if er != nil {
-		log.Error(er)
+	err = r.conn.Close()
+	if err != nil {
+		log.Error(err)
 	}
-	return er
+	return err
 }
 
 func (r *RpcRouterClient) CreateStream(onMessage func(resp *routersvr.ReponseMessage)) (*RpcRouterStreamClient, error) {
-	var er error
+	var err error
 	rpcStream := &RpcRouterStreamClient{client: r, onMessage: onMessage}
-	rpcStream.stream, er = r.client.BindStream(context.Background())
-	if er != nil {
-		log.Error(er)
-		return nil, er
+	rpcStream.stream, err = r.client.BindStream(context.Background())
+	if err != nil {
+		log.Error(err)
+		return nil, err
 	}
 	r.streams = append(r.streams, rpcStream)
 
@@ -99,17 +99,17 @@ func (r *RpcRouterStreamClient) SetClientUuid(clientUuid string) {
 }
 
 func (r *RpcRouterStreamClient) RegisterService(msg []byte) error {
-	if er := r.stream.Send(&routersvr.RequestMessage{ServiceId: r.client.ServiceId, Cuuid: r.clientUuid, Uuid: "", MsgType: 0, Msg: msg}); er != nil {
-		log.Error(er)
-		return er
+	if err := r.stream.Send(&routersvr.RequestMessage{ServiceId: r.client.ServiceId, Cuuid: r.clientUuid, Uuid: "", MsgType: 0, Msg: msg}); err != nil {
+		log.Error(err)
+		return err
 	}
 	return nil
 }
 
 func (r *RpcRouterStreamClient) SendMessage(uuid string, msg []byte) error {
-	if er := r.stream.Send(&routersvr.RequestMessage{ServiceId: r.client.ServiceId, Cuuid: r.clientUuid, Uuid: uuid, MsgType: 1, Msg: msg}); er != nil {
-		log.Error(er)
-		return er
+	if err := r.stream.Send(&routersvr.RequestMessage{ServiceId: r.client.ServiceId, Cuuid: r.clientUuid, Uuid: uuid, MsgType: 1, Msg: msg}); err != nil {
+		log.Error(err)
+		return err
 	}
 	return nil
 }
@@ -119,17 +119,17 @@ func (r *RpcRouterStreamClient) CloseSend() error {
 }
 
 func (r *RpcRouterStreamClient) run() {
-	var er error
+	var err error
 	var resp *routersvr.ReponseMessage
 	for {
-		resp, er = r.stream.Recv()
-		if er == io.EOF {
-			log.Error("接收到服务端的结束信号 %v", er)
+		resp, err = r.stream.Recv()
+		if err == io.EOF {
+			log.Error("接收到服务端的结束信号 %v", err)
 			break
 		}
 
-		if er != nil {
-			log.Error("接收数据错误 %v", er)
+		if err != nil {
+			log.Error("接收数据错误 %v", err)
 			break
 		}
 

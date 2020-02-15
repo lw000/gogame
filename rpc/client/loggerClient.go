@@ -13,11 +13,11 @@ type RpcLoggerClient struct {
 }
 
 func (r *RpcLoggerClient) Start(address string) error {
-	var er error
-	r.conn, er = grpc.Dial(address, grpc.WithInsecure())
-	if er != nil {
-		log.Error("did not connect:%v", er)
-		return er
+	var err error
+	r.conn, err = grpc.Dial(address, grpc.WithInsecure())
+	if err != nil {
+		log.Error("did not connect:%v", err)
+		return err
 	}
 
 	r.client = loggersvr.NewLoggerClient(r.conn)
@@ -26,19 +26,19 @@ func (r *RpcLoggerClient) Start(address string) error {
 }
 
 func (r *RpcLoggerClient) Stop() error {
-	er := r.conn.Close()
-	if er != nil {
+	err := r.conn.Close()
+	if err != nil {
 
 	}
-	return er
+	return err
 }
 
 func (r *RpcLoggerClient) WriteLogger(msg string) error {
 	ctx := context.Background()
-	reply, er := r.client.WriteLogger(ctx, &loggersvr.Request{ServerId: 10000, ServerTag: "platformsrv", Msg: msg})
-	if er != nil {
-		log.Error("did not connect:%v", er)
-		return er
+	reply, err := r.client.WriteLogger(ctx, &loggersvr.Request{ServerId: 10000, ServerTag: "platformsrv", Msg: msg})
+	if err != nil {
+		log.Error("did not connect:%v", err)
+		return err
 	}
 	if reply.Status != 1 {
 		log.Error(reply)

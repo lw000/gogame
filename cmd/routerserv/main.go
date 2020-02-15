@@ -27,11 +27,11 @@ var (
 )
 
 func Test() {
-	//测试日志写入服务
+	// 测试日志写入服务
 	go func() {
 		for {
-			er := rpcLoggerCli.WriteLogger("routerserv-1")
-			if er != nil {
+			err := rpcLoggerCli.WriteLogger("routerserv-1")
+			if err != nil {
 				log.Println("error")
 			}
 			time.Sleep(time.Second * time.Duration(1))
@@ -40,13 +40,13 @@ func Test() {
 }
 
 func main() {
-	if er := global.LoadGlobalConfig(); er != nil {
-		log.Panic(er)
+	if err := global.LoadGlobalConfig(); err != nil {
+		log.Panic(err)
 	}
 
 	rpcLoggerCli = &rpcclient.RpcLoggerClient{}
-	if er := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port)); er != nil {
-		log.Panic(er)
+	if err := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServe.Host, global.Cfg.LoggerServe.Port)); err != nil {
+		log.Panic(err)
 	}
 
 	rpcRouterServ = &rpcservice.RpcRouterServer{}
@@ -61,13 +61,13 @@ func main() {
 
 	rpcRouterServ.HandleMessage(func(stream *rpcservice.RpcRouterServerStream, req *routersvr.RequestMessage) {
 		switch req.MsgType {
-		case 0: //注册协议
-			pcls, er := ggpcl.DecodePcl(req.Msg)
-			if er != nil {
-				log.Println(er)
-				er = stream.SendMessage(req.ServiceId, req.MsgType, req.Uuid, []byte("0"))
-				if er != nil {
-					log.Println(er)
+		case 0: // 注册协议
+			pcls, err := ggpcl.DecodePcl(req.Msg)
+			if err != nil {
+				log.Println(err)
+				err = stream.SendMessage(req.ServiceId, req.MsgType, req.Uuid, []byte("0"))
+				if err != nil {
+					log.Println(err)
 				}
 				return
 			}
@@ -78,29 +78,29 @@ func main() {
 			clientConfig.protocols.Store(req.ServiceVersion, pcls)
 			clientStreams.Store(req.ServiceId, clientConfig)
 
-			er = stream.SendMessage(req.ServiceId, req.MsgType, req.Uuid, []byte("1"))
-			if er != nil {
-				log.Println(er)
+			err = stream.SendMessage(req.ServiceId, req.MsgType, req.Uuid, []byte("1"))
+			if err != nil {
+				log.Println(err)
 			}
-		case 1: //转发消息
+		case 1: // 转发消息
 			v1, ok := clientStreams.Load(req.Cuuid)
 			if !ok {
 				log.Println("没有找到路由信息")
 				return
 			}
 			transStream := v1.(*rpcservice.RpcRouterServerStream)
-			er := transStream.SendMessage(req.ServiceId, 1, req.Uuid, req.Msg)
-			if er != nil {
-				log.Println(er)
+			err := transStream.SendMessage(req.ServiceId, 1, req.Uuid, req.Msg)
+			if err != nil {
+				log.Println(err)
 			}
 		}
 	})
 
 	rpcSvr := &rpcservice.RpcServer{}
-	if er := rpcSvr.StartService(global.Cfg.Port, func(s *grpc.Server) {
+	if err := rpcSvr.StartService(global.Cfg.Port, func(s *grpc.Server) {
 		routersvr.RegisterRouterServer(s, rpcRouterServ)
-	}); er != nil {
-		log.Panic(er)
+	}); err != nil {
+		log.Panic(err)
 	}
 
 	Test()

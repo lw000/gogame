@@ -12,11 +12,11 @@ var (
 func LoadGlobalConfig() error {
 	log.LoadConfiguration("./conf/log4go.xml")
 
-	var er error
-	Cfg, er = config.LoadJsonConfig("./conf/conf.json")
-	if er != nil {
-		log.Error(er)
-		return er
+	var err error
+	Cfg, err = config.LoadJsonConfig("./conf/conf.json")
+	if err != nil {
+		log.Error(err)
+		return err
 	}
 
 	return nil

@@ -1,15 +1,15 @@
 package config
 
 type CfgStruct struct {
-	DBServ struct {
+	DBServe struct {
 		Host string `json:"host"`
 		Port int64  `json:"port"`
-	} `json:"dbServ"`
-	Debug      int64 `json:"debug"`
-	LoggerServ struct {
+	} `json:"dbServe"`
+	Debug       int64 `json:"debug"`
+	LoggerServe struct {
 		Host string `json:"host"`
 		Port int64  `json:"port"`
-	} `json:"loggerServ"`
+	} `json:"loggerServe"`
 	RouterWay struct {
 		Host string `json:"host"`
 		Port int64  `json:"port"`

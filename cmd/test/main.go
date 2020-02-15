@@ -30,10 +30,10 @@ func loginMsg(uid int) ([]byte, error) {
 	m["subId"] = "0"
 	m["msg"] = ""
 
-	data, er := json.Marshal(m)
-	if er != nil {
-		log.Println(er)
-		return nil, er
+	data, err := json.Marshal(m)
+	if err != nil {
+		log.Println(err)
+		return nil, err
 	}
 
 	return data, nil
@@ -45,10 +45,10 @@ func chatMsg(uid int) ([]byte, error) {
 	m["uid"] = suid
 	m["input"] = strings.Repeat(suid, 2)
 
-	data, er := json.Marshal(m)
-	if er != nil {
-		log.Println(er)
-		return nil, er
+	data, err := json.Marshal(m)
+	if err != nil {
+		log.Println(err)
+		return nil, err
 	}
 
 	return data, nil
@@ -56,10 +56,10 @@ func chatMsg(uid int) ([]byte, error) {
 
 func (fc *FastWsClient) Create(host, path string) error {
 	u := url.URL{Scheme: "ws", Host: host, Path: path}
-	var er error
-	fc.conn, _, er = websocket.DefaultDialer.Dial(u.String(), nil)
-	if er != nil {
-		return er
+	var err error
+	fc.conn, _, err = websocket.DefaultDialer.Dial(u.String(), nil)
+	if err != nil {
+		return err
 	}
 
 	fc.onConnected()
@@ -80,19 +80,19 @@ func (fc *FastWsClient) HandleMessage(f func(data []byte)) {
 }
 
 func (fc *FastWsClient) SendMessage(data []byte) error {
-	er := fc.conn.WriteMessage(websocket.TextMessage, data)
-	if er != nil {
-		log.Println(er)
-		return er
+	err := fc.conn.WriteMessage(websocket.TextMessage, data)
+	if err != nil {
+		log.Println(err)
+		return err
 	}
 	return nil
 }
 
 func (fc *FastWsClient) Ping() error {
-	er := fc.conn.WriteMessage(websocket.PingMessage, []byte(""))
-	if er != nil {
-		log.Println(er)
-		return er
+	err := fc.conn.WriteMessage(websocket.PingMessage, []byte(""))
+	if err != nil {
+		log.Println(err)
+		return err
 	}
 	return nil
 }
@@ -117,21 +117,21 @@ func TestMessage(fc *FastWsClient, uid int) {
 	for {
 		select {
 		case <-tickHeartBeat.C:
-			er := fc.Ping()
-			if er != nil {
-				log.Println(er)
+			err := fc.Ping()
+			if err != nil {
+				log.Println(err)
 				return
 			}
 		case <-tickSend.C:
-			data, er := chatMsg(uid)
-			if er != nil {
-				log.Println(er)
+			data, err := chatMsg(uid)
+			if err != nil {
+				log.Println(err)
 				return
 			}
 
-			er = fc.SendMessage(data)
-			if er != nil {
-				log.Println(er)
+			err = fc.SendMessage(data)
+			if err != nil {
+				log.Println(err)
 				return
 			}
 		}
@@ -139,10 +139,10 @@ func TestMessage(fc *FastWsClient, uid int) {
 }
 
 func main() {
-	var er error
-	cfg, er = config.LoadJsonConfig("./conf/conf.json")
-	if er != nil {
-		log.Panic(er)
+	var err error
+	cfg, err = config.LoadJsonConfig("./conf/conf.json")
+	if err != nil {
+		log.Panic(err)
 	}
 
 	for i := 1; i <= cfg.Count; i++ {
@@ -158,9 +158,9 @@ func main() {
 		ws.HandleMessage(func(data []byte) {
 			log.Println(string(data))
 		})
-		er = ws.Create(cfg.Host, cfg.Path)
-		if er != nil {
-			log.Println(er)
+		err = ws.Create(cfg.Host, cfg.Path)
+		if err != nil {
+			log.Println(err)
 			continue
 		}
 

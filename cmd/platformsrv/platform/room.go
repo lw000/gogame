@@ -5,9 +5,9 @@ type Room struct {
 	Name string
 }
 
-func NewRoom(rid int, rname string) *Room {
+func NewRoom(rid int, name string) *Room {
 	return &Room{
 		Rid:  rid,
-		Name: rname,
+		Name: name,
 	}
 }

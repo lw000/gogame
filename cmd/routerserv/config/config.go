@@ -10,7 +10,7 @@ type JsonConfig struct {
 		Host string
 		Port int64
 	}
-	LoggerServ struct {
+	LoggerServe struct {
 		Host string
 		Port int64
 	}
@@ -37,8 +37,8 @@ func LoadJsonConfig(file string) (*JsonConfig, error) {
 	cfg.Debug = cfgStruct.Debug
 	cfg.Port = cfgStruct.Port
 
-	cfg.LoggerServ.Host = cfgStruct.LoggerServ.Host
-	cfg.LoggerServ.Port = cfgStruct.LoggerServ.Port
+	cfg.LoggerServe.Host = cfgStruct.LoggerServe.Host
+	cfg.LoggerServe.Port = cfgStruct.LoggerServe.Port
 
 	return cfg, err
 }

@@ -14,11 +14,11 @@ var (
 )
 
 func Test() {
-	//测试日志写入服务
+	// 测试日志写入服务
 	go func() {
 		for {
-			er := rpcLoggerCli.WriteLogger("aiserv-1")
-			if er != nil {
+			err := rpcLoggerCli.WriteLogger("aiserv-1")
+			if err != nil {
 
 			}
 			time.Sleep(time.Second * time.Duration(1))
@@ -31,13 +31,13 @@ func main() {
 
 	})
 
-	if er := global.LoadGlobalConfig(); er != nil {
-		log.Panic(er)
+	if err := global.LoadGlobalConfig(); err != nil {
+		log.Panic(err)
 	}
 
 	rpcLoggerCli = &rpcclient.RpcLoggerClient{}
-	if er := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port)); er != nil {
-		log.Panic(er)
+	if err := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port)); err != nil {
+		log.Panic(err)
 	}
 
 	Test()

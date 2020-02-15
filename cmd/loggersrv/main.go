@@ -9,15 +9,15 @@ import (
 )
 
 func main() {
-	if er := global.LoadGlobalConfig(); er != nil {
-		log.Panic(er)
+	if err := global.LoadGlobalConfig(); err != nil {
+		log.Panic(err)
 	}
 
 	rpcLoggerSvr := &rpcservice.RpcServer{}
-	if er := rpcLoggerSvr.StartService(global.Cfg.Port, func(s *grpc.Server) {
+	if err := rpcLoggerSvr.StartService(global.Cfg.Port, func(s *grpc.Server) {
 		loggersvr.RegisterLoggerServer(s, &rpcservice.RpcLoggerServer{})
-	}); er != nil {
-		log.Panic(er)
+	}); err != nil {
+		log.Panic(err)
 	}
 
 	select {}

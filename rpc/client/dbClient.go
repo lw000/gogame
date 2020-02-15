@@ -19,11 +19,11 @@ type RpcDbStream struct {
 }
 
 func (r *RpcDbClient) Start(address string) error {
-	var er error
-	r.conn, er = grpc.Dial(address, grpc.WithInsecure())
-	if er != nil {
-		log.Error("did not connect:%v", er)
-		return er
+	var err error
+	r.conn, err = grpc.Dial(address, grpc.WithInsecure())
+	if err != nil {
+		log.Error("did not connect:%v", err)
+		return err
 	}
 
 	r.client = dbsvr.NewDBClient(r.conn)
@@ -32,20 +32,20 @@ func (r *RpcDbClient) Start(address string) error {
 }
 
 func (r *RpcDbClient) Stop() error {
-	er := r.conn.Close()
-	if er != nil {
+	err := r.conn.Close()
+	if err != nil {
 
 	}
-	return er
+	return err
 }
 
 func (r *RpcDbClient) CreateStream(onMessage func(response *dbsvr.Response)) (*RpcDbStream, error) {
-	var er error
+	var err error
 	var rpcStream RpcDbStream
-	rpcStream.stream, er = r.client.BidStream(context.Background())
-	if er != nil {
-		log.Error(er)
-		return nil, er
+	rpcStream.stream, err = r.client.BidStream(context.Background())
+	if err != nil {
+		log.Error(err)
+		return nil, err
 	}
 
 	rpcStream.onMessage = onMessage
@@ -56,9 +56,9 @@ func (r *RpcDbClient) CreateStream(onMessage func(response *dbsvr.Response)) (*R
 }
 
 func (r *RpcDbStream) SendMessage(mainId int32, subId int32, requestId int32, input string) error {
-	if er := r.stream.SendMsg(&dbsvr.Request{MainId: mainId, SubId: subId, RequestId: requestId, Input: input}); er != nil {
-		log.Error(er)
-		return er
+	if err := r.stream.SendMsg(&dbsvr.Request{MainId: mainId, SubId: subId, RequestId: requestId, Input: input}); err != nil {
+		log.Error(err)
+		return err
 	}
 	return nil
 }
@@ -68,17 +68,17 @@ func (r *RpcDbStream) CloseSend() error {
 }
 
 func (r *RpcDbStream) run() {
-	var er error
+	var err error
 	var resp *dbsvr.Response
 	for {
-		resp, er = r.stream.Recv()
-		if er == io.EOF {
-			log.Error("接收到服务端的结束信号 %v", er)
+		resp, err = r.stream.Recv()
+		if err == io.EOF {
+			log.Error("接收到服务端的结束信号 %v", err)
 			break
 		}
 
-		if er != nil {
-			log.Error("接收数据错误 %v", er)
+		if err != nil {
+			log.Error("接收数据错误 %v", err)
 			break
 		}
 

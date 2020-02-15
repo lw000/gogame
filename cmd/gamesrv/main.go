@@ -27,9 +27,9 @@ func Test() {
 		for {
 			var requestId int32 = 0
 			atomic.AddInt32(&requestId, 1)
-			er := rpcRouterStream.SendMessage("", []byte("gamesrv-1"))
-			if er != nil {
-				log.Println(er)
+			err := rpcRouterStream.SendMessage("", []byte("gamesrv-1"))
+			if err != nil {
+				log.Println(err)
 				return
 			}
 			time.Sleep(time.Second * time.Duration(1))
@@ -39,8 +39,8 @@ func Test() {
 	// 测试日志写入服务
 	go func() {
 		for {
-			er := rpcLoggerCli.WriteLogger("gamesrv-1")
-			if er != nil {
+			err := rpcLoggerCli.WriteLogger("gamesrv-1")
+			if err != nil {
 
 			}
 			time.Sleep(time.Second * time.Duration(1))
@@ -52,9 +52,9 @@ func Test() {
 		for {
 			var requestId int32 = 0
 			atomic.AddInt32(&requestId, 1)
-			er := rpcDbStream.SendMessage(1, 10000, requestId, "gamesrv-1")
-			if er != nil {
-				log.Println(er)
+			err := rpcDbStream.SendMessage(1, 10000, requestId, "gamesrv-1")
+			if err != nil {
+				log.Println(err)
 			}
 			time.Sleep(time.Second * time.Duration(1))
 		}
@@ -66,22 +66,22 @@ func main() {
 
 	})
 
-	if er := global.LoadGlobalConfig(); er != nil {
-		log.Panic(er)
+	if err := global.LoadGlobalConfig(); err != nil {
+		log.Panic(err)
 	}
 
 	rpcLoggerCli = &rpcclient.RpcLoggerClient{}
-	if er := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port)); er != nil {
-		log.Panic(er)
+	if err := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServe.Host, global.Cfg.LoggerServe.Port)); err != nil {
+		log.Panic(err)
 	}
 
 	rpcRouterCli = &rpcclient.RpcRouterClient{}
-	if er := rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterWay.Host, global.Cfg.RouterWay.Port)); er != nil {
-		log.Panic(er)
+	if err := rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterWay.Host, global.Cfg.RouterWay.Port)); err != nil {
+		log.Panic(err)
 	}
 
-	var er error
-	rpcRouterStream, er = rpcRouterCli.CreateStream(func(response *routersvr.ReponseMessage) {
+	var err error
+	rpcRouterStream, err = rpcRouterCli.CreateStream(func(response *routersvr.ReponseMessage) {
 		switch response.ServiceId {
 		case 1:
 			log.Println(response)
@@ -89,16 +89,16 @@ func main() {
 			log.Println(response)
 		}
 	})
-	if er != nil {
-		log.Panic(er)
+	if err != nil {
+		log.Panic(err)
 	}
 
 	rpcDbCli = &rpcclient.RpcDbClient{}
-	if er = rpcDbCli.Start(fmt.Sprintf("%s:%d", global.Cfg.DBServ.Host, global.Cfg.DBServ.Port)); er != nil {
-		log.Panic(er)
+	if err = rpcDbCli.Start(fmt.Sprintf("%s:%d", global.Cfg.DBServe.Host, global.Cfg.DBServe.Port)); err != nil {
+		log.Panic(err)
 	}
 
-	rpcDbStream, er = rpcDbCli.CreateStream(func(response *dbsvr.Response) {
+	rpcDbStream, err = rpcDbCli.CreateStream(func(response *dbsvr.Response) {
 		switch response.MainId {
 		case 1:
 			log.Println(response)
@@ -106,8 +106,8 @@ func main() {
 			log.Println(response)
 		}
 	})
-	if er != nil {
-		log.Panic(er)
+	if err != nil {
+		log.Panic(err)
 	}
 
 	Test()

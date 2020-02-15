@@ -14,19 +14,19 @@ type Desk struct {
 }
 
 type IDesk interface {
-	OnSitup(chairID int, user user.User)
-	OnSitdown(chairID int, user user.User)
+	OnSitUp(chairID int, user user.User)
+	OnSitDown(chairID int, user user.User)
 
 	onFrameMessage(v interface{}) bool
 
 	OnGameMessage(v interface{}) bool
 }
 
-func (d *Desk) OnSitup(chairID int, user user.User) {
+func (d *Desk) OnSitUp(chairID int, user user.User) {
 	fmt.Println(chairID, user)
 }
 
-func (d *Desk) OnSitdown(chairID int, user user.User) {
+func (d *Desk) OnSitDown(chairID int, user user.User) {
 	fmt.Println(chairID, user)
 }
 
