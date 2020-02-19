@@ -7,8 +7,8 @@ type Manager struct {
 }
 
 var (
-	once   sync.Once
-	umserv *Manager
+	once    sync.Once
+	umserve *Manager
 )
 
 func init() {
@@ -17,9 +17,9 @@ func init() {
 
 func Service() *Manager {
 	once.Do(func() {
-		umserv = &Manager{}
+		umserve = &Manager{}
 	})
-	return umserv
+	return umserve
 }
 
 func (um *Manager) Add(u *User) bool {

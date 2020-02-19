@@ -1,12 +1,11 @@
 package main
 
 import (
-	"demo/gogame/cmd/dbserv/global"
-	"demo/gogame/common/sys"
-	"demo/gogame/protos/db"
-	"demo/gogame/rpc/client"
-	"demo/gogame/rpc/service"
 	"fmt"
+	"gogame/cmd/dbserv/global"
+	"gogame/protos/db"
+	"gogame/rpc/client"
+	"gogame/rpc/service"
 	"google.golang.org/grpc"
 	"log"
 	"time"
@@ -30,10 +29,6 @@ func Test() {
 }
 
 func main() {
-	ggsys.RegisterOnInterrupt(func() {
-
-	})
-
 	if err := global.LoadGlobalConfig(); err != nil {
 		log.Panic(err)
 	}

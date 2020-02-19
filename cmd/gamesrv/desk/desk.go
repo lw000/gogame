@@ -1,8 +1,8 @@
 package desk
 
 import (
-	"demo/gogame/user"
 	"fmt"
+	"gogame/user"
 	"sync"
 )
 

@@ -1,8 +1,8 @@
 package rpcclient
 
 import (
-	"demo/gogame/protos/router"
 	log "github.com/alecthomas/log4go"
+	"gogame/protos/router"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"io"

@@ -2,8 +2,8 @@ package rpcservice
 
 import (
 	"context"
-	"demo/gogame/protos/db"
 	log "github.com/alecthomas/log4go"
+	"gogame/protos/db"
 	"io"
 )
 

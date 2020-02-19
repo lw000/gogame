@@ -1,12 +1,11 @@
 package main
 
 import (
-	"demo/gogame/cmd/gamesrv/global"
-	"demo/gogame/common/sys"
-	"demo/gogame/protos/db"
-	"demo/gogame/protos/router"
-	"demo/gogame/rpc/client"
 	"fmt"
+	"gogame/cmd/gamesrv/global"
+	"gogame/protos/db"
+	"gogame/protos/router"
+	"gogame/rpc/client"
 	"log"
 	"sync/atomic"
 	"time"
@@ -62,10 +61,6 @@ func Test() {
 }
 
 func main() {
-	ggsys.RegisterOnInterrupt(func() {
-
-	})
-
 	if err := global.LoadGlobalConfig(); err != nil {
 		log.Panic(err)
 	}

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"demo/gogame/cmd/loggersrv/global"
-	"demo/gogame/protos/logger"
-	"demo/gogame/rpc/service"
+	"gogame/cmd/loggersrv/global"
+	"gogame/protos/logger"
+	"gogame/rpc/service"
 	"google.golang.org/grpc"
 	"log"
 )

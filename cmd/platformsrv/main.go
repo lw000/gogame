@@ -1,14 +1,13 @@
 package main
 
 import (
-	"demo/gogame/cmd/platformsrv/global"
-	"demo/gogame/cmd/platformsrv/platform"
-	"demo/gogame/common/sys"
-	"demo/gogame/pcl"
-	"demo/gogame/protos/db"
-	"demo/gogame/protos/router"
-	"demo/gogame/rpc/client"
 	"fmt"
+	"gogame/cmd/platformsrv/global"
+	"gogame/cmd/platformsrv/platform"
+	"gogame/pcl"
+	"gogame/protos/db"
+	"gogame/protos/router"
+	"gogame/rpc/client"
 	"log"
 	"sync/atomic"
 	"time"
@@ -66,12 +65,6 @@ func Test() {
 }
 
 func main() {
-	ggsys.RegisterOnInterrupt(func() {
-		if err := plat.Stop(); err != nil {
-
-		}
-	})
-
 	plat = platform.NewPlatform(1, "棋牌游戏")
 	if err := plat.Start(); err != nil {
 		log.Panic(err)

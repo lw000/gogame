@@ -1,12 +1,12 @@
 package main
 
 import (
-	"demo/gogame/cmd/gateway/global"
-	"demo/gogame/pcl"
-	"demo/gogame/protos/router"
-	"demo/gogame/rpc/client"
-	"demo/gogame/rpc/service"
 	"fmt"
+	"gogame/cmd/routerserv/global"
+	"gogame/pcl"
+	"gogame/protos/router"
+	"gogame/rpc/client"
+	"gogame/rpc/service"
 	"google.golang.org/grpc"
 	"log"
 	"sync"

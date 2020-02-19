@@ -1,8 +1,8 @@
 package rpc
 
 import (
-	"demo/gogame/rpc/client"
-	"demo/gogame/rpc/service"
+	"gogame/rpc/client"
+	"gogame/rpc/service"
 )
 
 type RpcMgr struct {

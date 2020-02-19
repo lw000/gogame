@@ -1,9 +1,9 @@
 package main
 
 import (
-	"demo/gogame/cmd/test/config"
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"gogame/cmd/test/config"
 	"log"
 	"net/url"
 	"strconv"

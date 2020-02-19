@@ -1,21 +1,19 @@
 package config
 
 import (
-	"demo/gogame/common/db/mysql/config"
 	"encoding/json"
+	"github.com/lw000/gocommon/db/mysql"
 	"io/ioutil"
 )
 
 type JsonConfig struct {
-	MysqlCfg *ggdbconfig.JsonConfigStruct
+	MysqlCfg tymysql.JsonConfig
 	Port     int64
 	Debug    int64
 }
 
 func NewJsonConfig() *JsonConfig {
-	return &JsonConfig{
-		MysqlCfg: &ggdbconfig.JsonConfigStruct{},
-	}
+	return &JsonConfig{}
 }
 
 func LoadJsonConfig(file string) (*JsonConfig, error) {

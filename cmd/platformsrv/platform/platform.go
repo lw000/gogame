@@ -1,8 +1,8 @@
 package platform
 
 import (
-	"demo/gogame/user"
 	"fmt"
+	"gogame/user"
 	"sync"
 )
 

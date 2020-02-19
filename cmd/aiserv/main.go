@@ -1,10 +1,9 @@
 package main
 
 import (
-	"demo/gogame/cmd/aiserv/global"
-	"demo/gogame/common/sys"
-	"demo/gogame/rpc/client"
 	"fmt"
+	"gogame/cmd/aiserv/global"
+	"gogame/rpc/client"
 	"log"
 	"time"
 )
@@ -27,16 +26,13 @@ func Test() {
 }
 
 func main() {
-	ggsys.RegisterOnInterrupt(func() {
-
-	})
 
 	if err := global.LoadGlobalConfig(); err != nil {
 		log.Panic(err)
 	}
 
 	rpcLoggerCli = &rpcclient.RpcLoggerClient{}
-	if err := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServ.Host, global.Cfg.LoggerServ.Port)); err != nil {
+	if err := rpcLoggerCli.Start(fmt.Sprintf("%s:%d", global.Cfg.LoggerServe.Host, global.Cfg.LoggerServe.Port)); err != nil {
 		log.Panic(err)
 	}
 

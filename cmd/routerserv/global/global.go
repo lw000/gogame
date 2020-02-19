@@ -1,8 +1,8 @@
 package global
 
 import (
-	"demo/gogame/cmd/routerserv/config"
 	log "github.com/alecthomas/log4go"
+	"gogame/cmd/routerserv/config"
 )
 
 var (

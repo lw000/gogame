@@ -1,8 +1,8 @@
 package global
 
 import (
-	"demo/gogame/cmd/platformsrv/config"
 	log "github.com/alecthomas/log4go"
+	"gogame/cmd/platformsrv/config"
 )
 
 var (

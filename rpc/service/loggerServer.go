@@ -1,8 +1,8 @@
 package rpcservice
 
 import (
-	"demo/gogame/protos/logger"
 	log "github.com/alecthomas/log4go"
+	"gogame/protos/logger"
 	"golang.org/x/net/context"
 )
 

@@ -1,15 +1,15 @@
 package config
 
 import (
-	ggdbconfig "demo/gogame/common/db/mysql/config"
-	ggrdsexconfig "demo/gogame/common/db/rdsex/config"
 	"encoding/json"
+	dbconfig "github.com/lw000/gocommon/db/mysql"
+	rdsexconfig "github.com/lw000/gocommon/db/rdsex"
 	"io/ioutil"
 )
 
 type JsonConfig struct {
-	RdsCfg   *ggrdsexconfig.JsonConfigStruct
-	MysqlCfg *ggdbconfig.JsonConfigStruct
+	RdsCfg   rdsexconfig.JsonConfig
+	MysqlCfg dbconfig.JsonConfig
 	GateWay  struct {
 		Host string
 		Port int64
@@ -23,10 +23,7 @@ type JsonConfig struct {
 }
 
 func NewJsonConfig() *JsonConfig {
-	return &JsonConfig{
-		RdsCfg:   &ggrdsexconfig.JsonConfigStruct{},
-		MysqlCfg: &ggdbconfig.JsonConfigStruct{},
-	}
+	return &JsonConfig{}
 }
 
 func LoadJsonConfig(file string) (*JsonConfig, error) {

@@ -1,18 +1,18 @@
 package main
 
 import (
-	"demo/gogame/cmd/gateway/global"
-	"demo/gogame/common/utils"
-	"demo/gogame/constant"
-	"demo/gogame/pcl"
-	"demo/gogame/protos"
-	"demo/gogame/protos/router"
-	"demo/gogame/rpc/client"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/protobuf/proto"
+	"github.com/lw000/gocommon/utils"
 	"github.com/olahol/melody"
+	"gogame/cmd/gateway/global"
+	"gogame/constant"
+	"gogame/pcl"
+	"gogame/protos"
+	"gogame/protos/router"
+	"gogame/rpc/client"
 	"log"
 	"net/http"
 	"sync"
@@ -98,7 +98,7 @@ func main() {
 	})
 
 	m.HandleConnect(func(s *melody.Session) {
-		uuid := ggutils.UUID()
+		uuid := tyutils.UUID()
 		s.Set("uuid", uuid)
 		clients.Store(uuid, s)
 		log.Println("连接成功", uuid)
@@ -156,7 +156,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	rpcRouterCli := &rpcclient.RpcRouterClient{ServiceId: ggconstant.CGatewayServiceId, UUID: ggutils.UUID()}
+	rpcRouterCli := &rpcclient.RpcRouterClient{ServiceId: ggconstant.CGatewayServiceId, UUID: tyutils.UUID()}
 	if err = rpcRouterCli.Start(fmt.Sprintf("%s:%d", global.Cfg.RouterServe.Host, global.Cfg.RouterServe.Port)); err != nil {
 		log.Panic(err)
 	}

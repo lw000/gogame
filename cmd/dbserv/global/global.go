@@ -1,8 +1,8 @@
 package global
 
 import (
-	"demo/gogame/cmd/dbserv/config"
 	log "github.com/alecthomas/log4go"
+	"gogame/cmd/dbserv/config"
 )
 
 var (
@@ -10,10 +10,10 @@ var (
 )
 
 func LoadGlobalConfig() error {
-	log.LoadConfiguration("./conf/log4go.xml")
+	log.LoadConfiguration("conf/log4go.xml")
 
 	var err error
-	Cfg, err = config.LoadJsonConfig("./conf/conf.json")
+	Cfg, err = config.LoadJsonConfig("conf/conf.json")
 	if err != nil {
 		log.Error(err)
 		return err
