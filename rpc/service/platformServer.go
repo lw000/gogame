@@ -16,11 +16,14 @@ func (r *RpcPlatformServer) HandleMessage(f func(stream platformsvr.Platform_Bid
 
 func (r *RpcPlatformServer) BidStream(stream platformsvr.Platform_BidStreamServer) error {
 	ctx := stream.Context()
+	var err error
+_exit:
 	for {
 		select {
 		case <-ctx.Done():
 			log.Error("收到客户端通过context发出的终止信号")
-			return ctx.Err()
+			err = ctx.Err()
+			break _exit
 		default:
 			req, err := stream.Recv()
 			if err == io.EOF {
@@ -42,6 +45,5 @@ func (r *RpcPlatformServer) BidStream(stream platformsvr.Platform_BidStreamServe
 			}
 		}
 	}
-
-	return nil
+	return err
 }
